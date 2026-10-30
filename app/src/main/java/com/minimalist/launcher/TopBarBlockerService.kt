@@ -62,7 +62,7 @@ class TopBarBlockerService : Service() {
     }
 
     private fun shouldBlock() =
-        StrictModeManager.isActive() || PomodoroManager.isWorkSessionActive()
+        StrictModeManager.isActive() || (PomodoroManager.isWorkSessionActive() && !PomodoroManager.isEmergencyCallActive)
 
     private fun addOverlays() {
         if (topOverlayView != null) return

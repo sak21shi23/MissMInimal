@@ -2,6 +2,8 @@ package com.minimalist.launcher
 
 import android.app.NotificationManager
 import android.content.Context
+import android.media.AudioManager
+import android.os.SystemClock
 import android.telecom.TelecomManager
 
 object PomodoroManager {
@@ -15,6 +17,10 @@ object PomodoroManager {
     var lastLaunchTime = 0L
     var lastLaunchedAppPkg: String? = null
 
+    var isEmergencyCallActive = false
+    var lastEmergencyCallTime = 0L
+    var defaultDialerPackage: String? = null
+
     val userSelectedApps = mutableListOf<String>()
     val allowedPackages = mutableSetOf<String>()
     val emergencyContacts = MutableList<Pair<String, String>?>(2) { null }
@@ -26,25 +32,6 @@ object PomodoroManager {
         "com.google.android.gms",
         "com.google.android.gsf",
         "com.android.vending",
-        // Phone, Dialer & Telecom (direct emergency calls)
-        "com.android.phone",
-        "com.android.dialer",
-        "com.google.android.dialer",
-        "com.google.android.incallui",
-        "com.android.incallui",
-        "com.android.server.telecom",
-        "com.android.telecom",
-        "com.samsung.android.dialer",
-        "com.samsung.android.incallui",
-        "com.vivo.dialer",
-        "com.vivo.incallui",
-        "com.iqoo.phone",
-        "com.oneplus.dialer",
-        "com.oplus.dialer",
-        "com.heytap.dialer",
-        "com.coloros.phonemanager",
-        "com.coloros.telecom",
-        "com.oplus.telecom",
         // Permission & security dialogs
         "com.android.permissioncontroller",
         "com.google.android.permissioncontroller",
@@ -55,6 +42,57 @@ object PomodoroManager {
         "com.android.packageinstaller",
         "com.google.android.packageinstaller"
     )
+
+    val CALL_PACKAGES = setOf(
+        // Core telecom & phone services
+        "com.android.phone",
+        "com.android.server.telecom",
+        "com.android.telecom",
+        "com.google.android.incallui",
+        "com.android.incallui",
+        "com.samsung.android.incallui",
+        "com.vivo.incallui",
+        "com.coloros.telecom",
+        "com.oplus.telecom",
+        "com.motorola.incallui",
+        "com.xiaomi.incallui",
+        "com.asus.incallui",
+        // OEM dialers / In-call hosts
+        "com.google.android.dialer",
+        "com.android.dialer",
+        "com.samsung.android.dialer",
+        "com.vivo.dialer",
+        "com.iqoo.phone",
+        "com.oneplus.dialer",
+        "com.oplus.dialer",
+        "com.heytap.dialer",
+        "com.coloros.phonemanager"
+    )
+
+    fun isEmergencyCallOngoing(context: Context): Boolean {
+        if (!isEmergencyCallActive) return false
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+        val mode = audioManager?.mode ?: AudioManager.MODE_NORMAL
+        val inCall = mode == AudioManager.MODE_IN_CALL ||
+                     mode == AudioManager.MODE_IN_COMMUNICATION ||
+                     mode == AudioManager.MODE_RINGTONE
+
+        val timeSinceCall = SystemClock.uptimeMillis() - lastEmergencyCallTime
+        if (inCall || timeSinceCall < 12000) {
+            return true
+        }
+        isEmergencyCallActive = false
+        return false
+    }
+
+    fun isCallRelatedPackage(pkg: String): Boolean {
+        val p = pkg.lowercase()
+        return CALL_PACKAGES.contains(pkg) ||
+               (defaultDialerPackage != null && defaultDialerPackage.equals(pkg, ignoreCase = true)) ||
+               p.contains("incallui") ||
+               p.contains("telecom") ||
+               (p.contains("dialer") && !p.contains("launcher"))
+    }
 
     fun start(
         durationMinutes: Int,
@@ -67,7 +105,8 @@ object PomodoroManager {
         currentSession = 1
         isActive = true
         isWorkPhase = true
-        
+        isEmergencyCallActive = false
+
         emergencyContacts.indices.forEach { emergencyContacts[it] = contacts.getOrNull(it) }
 
         val safeApps = allowedApps.distinct().take(3)
@@ -78,9 +117,8 @@ object PomodoroManager {
         allowedPackages.clear()
         allowedPackages.addAll(ALWAYS_ALLOWED)
         allowedPackages.addAll(safeApps)
-        context.getSystemService(TelecomManager::class.java)
-            ?.defaultDialerPackage
-            ?.let(allowedPackages::add)
+
+        defaultDialerPackage = context.getSystemService(TelecomManager::class.java)?.defaultDialerPackage
 
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
         imm?.enabledInputMethodList?.forEach { allowedPackages.add(it.packageName) }
@@ -91,6 +129,7 @@ object PomodoroManager {
 
     fun startBreak(context: Context) {
         isWorkPhase = false
+        isEmergencyCallActive = false
         applyRestrictions(context, enable = false)
         persistState(context)
     }
@@ -98,6 +137,7 @@ object PomodoroManager {
     fun resumeNextWorkSession(context: Context) {
         currentSession++
         isWorkPhase = true
+        isEmergencyCallActive = false
         applyRestrictions(context, enable = true)
         persistState(context)
     }
@@ -107,7 +147,7 @@ object PomodoroManager {
         isWorkPhase = true
         currentSession = 1
         totalSessions = 1
-        emergencyContacts.fill(null)
+        isEmergencyCallActive = false
         userSelectedApps.clear()
         allowedPackages.clear()
 
@@ -166,8 +206,8 @@ object PomodoroManager {
         isActive = true
         isWorkPhase = isWork
 
-        emergencyContacts[0] = c0
-        emergencyContacts[1] = c1
+        if (c0 != null) emergencyContacts[0] = c0
+        if (c1 != null) emergencyContacts[1] = c1
 
         userSelectedApps.clear()
         userSelectedApps.addAll(apps)
@@ -175,9 +215,7 @@ object PomodoroManager {
         allowedPackages.clear()
         allowedPackages.addAll(ALWAYS_ALLOWED)
         allowedPackages.addAll(apps)
-        context.getSystemService(TelecomManager::class.java)
-            ?.defaultDialerPackage
-            ?.let(allowedPackages::add)
+        defaultDialerPackage = context.getSystemService(TelecomManager::class.java)?.defaultDialerPackage
 
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
         imm?.enabledInputMethodList?.forEach { allowedPackages.add(it.packageName) }

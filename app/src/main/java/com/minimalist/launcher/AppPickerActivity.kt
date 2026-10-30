@@ -38,16 +38,33 @@ class AppPickerActivity : AppCompatActivity() {
         apps.clear()
         val pm = packageManager
         val installedApps = pm.getInstalledApplications(0)
+        val defaultDialer = if (isPomodoroMode) {
+            getSystemService(android.telecom.TelecomManager::class.java)?.defaultDialerPackage
+        } else null
+
         for (app in installedApps) {
             if (pm.getLaunchIntentForPackage(app.packageName) != null) {
+                if (isPomodoroMode) {
+                    if (GameDetector.isLikelyGame(pm, app)) continue
+                    if (isPhoneOrContactsApp(app.packageName, defaultDialer)) continue
+                }
                 val name = pm.getApplicationLabel(app).toString()
-                if (isPomodoroMode && GameDetector.isLikelyGame(pm, app)) continue
                 apps.add(AppItem(app.packageName, name))
             }
         }
         apps.sortBy { it.name.lowercase() }
         
         binding.rvApps.adapter = PickerAdapter()
+    }
+
+    private fun isPhoneOrContactsApp(pkg: String, defaultDialer: String?): Boolean {
+        if (pkg == defaultDialer) return true
+        if (PomodoroManager.isCallRelatedPackage(pkg)) return true
+        val p = pkg.lowercase()
+        return p.contains("dialer") ||
+               p.contains("contacts") ||
+               p.contains("telecom") ||
+               p.contains("phone")
     }
 
     inner class PickerAdapter : RecyclerView.Adapter<PickerAdapter.ViewHolder>() {

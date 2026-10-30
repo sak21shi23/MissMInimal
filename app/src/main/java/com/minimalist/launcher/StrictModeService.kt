@@ -43,7 +43,7 @@ class StrictModeService : AccessibilityService() {
             val shouldBlock = shouldBlock()
             syncOverlay(shouldBlock)
             syncStatusBarBlock(shouldBlock)
-            if (shouldBlock) {
+            if (shouldBlock && !PomodoroManager.isEmergencyCallOngoing(this@StrictModeService)) {
                 checkAndDismissShadeIfVisible()
             }
             if (shouldBlock || PomodoroManager.isActive) handler.postDelayed(this, 500)
@@ -64,9 +64,10 @@ class StrictModeService : AccessibilityService() {
     }
 
     private fun shouldBlock() =
-        StrictModeManager.isActive() || PomodoroManager.isWorkSessionActive()
+        StrictModeManager.isActive() || (PomodoroManager.isWorkSessionActive() && !PomodoroManager.isEmergencyCallOngoing(this))
 
     fun dismissNotificationShade() {
+        if (PomodoroManager.isEmergencyCallOngoing(this)) return
         if (Build.VERSION.SDK_INT >= 31) {
             try {
                 performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
@@ -250,6 +251,24 @@ class StrictModeService : AccessibilityService() {
 
         // 1. In Pomodoro Mode:
         if (PomodoroManager.isWorkSessionActive()) {
+            // Check call / dialer related packages first:
+            if (PomodoroManager.isCallRelatedPackage(eventPkg)) {
+                if (PomodoroManager.isEmergencyCallOngoing(this)) {
+                    Log.d("PomBlock", "ALLOWED emergency call pkg=$eventPkg")
+                    return
+                } else {
+                    Log.d("PomBlock", "BLOCKED dialer pkg=$eventPkg (only emergency calls allowed)")
+                    performGlobalAction(GLOBAL_ACTION_BACK)
+                    bringFocusActivityToFront("pomodoro")
+                    return
+                }
+            }
+
+            // If an emergency call is active, don't block in-call overlays or system UI:
+            if (PomodoroManager.isEmergencyCallOngoing(this)) {
+                return
+            }
+
             // A. ALWAYS block sidebar and floating panels FIRST!
             if (isSidebarOrFloatPanel(eventPkg)) {
                 Log.d("PomBlock", "BLOCK sidebar pkg=$eventPkg")

@@ -31,6 +31,8 @@ import android.content.IntentFilter
 
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.text.InputType
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.NumberPicker
@@ -100,6 +102,17 @@ class FocusActivity : AppCompatActivity() {
     }
   }
 
+  private val contactPermissionLauncher = registerForActivityResult(
+    ActivityResultContracts.RequestPermission()
+  ) { isGranted ->
+    if (isGranted) {
+      launchSystemContactPicker()
+    } else {
+      Toast.makeText(this, "Contacts permission needed to pick contact", Toast.LENGTH_SHORT).show()
+      showManualContactInputDialog(pendingContactIndex)
+    }
+  }
+
   private var pendingCallNumber: String? = null
   private val callPermissionLauncher = registerForActivityResult(
     ActivityResultContracts.RequestPermission()
@@ -109,11 +122,7 @@ class FocusActivity : AppCompatActivity() {
       if (num != null) {
         makeDirectCall(num)
       } else {
-        try {
-          pomContactPicker.launch(
-            Intent(Intent.ACTION_PICK).setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE)
-          )
-        } catch (_: Exception) {}
+        startPomodoro()
       }
     } else {
       Toast.makeText(this, "Call permission required for direct emergency calls", Toast.LENGTH_SHORT).show()
@@ -1067,7 +1076,7 @@ class FocusActivity : AppCompatActivity() {
     pom_slotApp3.setOnLongClickListener { selectedApps.getOrNull(2)?.let { selectedApps.removeAt(2); updatePomAppSlotsUI() }; true }
 
     listOf(pom_tvContactName, pom_tvContactName2).forEachIndexed { index, view ->
-      view.setOnClickListener { openPomContactPicker(index) }
+      view.setOnClickListener { showSetContactDialog(index) }
     }
     listOf(pom_btnRemoveContact, pom_btnRemoveContact2).forEachIndexed { index, view ->
       view.setOnClickListener { removePomContact(index) }
@@ -1079,6 +1088,7 @@ class FocusActivity : AppCompatActivity() {
         startActivity(Intent(this, PermissionOnboardingActivity::class.java))
       } else if (emergencyContacts.any { it != null } &&
                  ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+        pendingCallNumber = null
         callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
       } else {
         startPomodoro()
@@ -1087,8 +1097,11 @@ class FocusActivity : AppCompatActivity() {
 
     listOf(pom_btnCallContact, pom_btnCallContact2).forEachIndexed { index, view ->
       view.setOnClickListener {
-        emergencyContacts[index]?.second?.let { num ->
+        val contact = PomodoroManager.emergencyContacts.getOrNull(index) ?: emergencyContacts.getOrNull(index)
+        contact?.second?.let { num ->
           performDirectCall(num)
+        } ?: run {
+          Toast.makeText(this, "No emergency contact configured", Toast.LENGTH_SHORT).show()
         }
       }
     }
@@ -1127,6 +1140,9 @@ class FocusActivity : AppCompatActivity() {
            pom_tvContactName, pom_tvContactName2, pom_btnRemoveContact, pom_btnRemoveContact2,
            pom_btnCallContact, pom_btnCallContact2, pom_btnCancelBreak,
            pom_active_slot1, pom_active_slot2, pom_active_slot3).forEach { it.addPressEffect() }
+
+    loadSavedEmergencyContacts()
+    updatePomContactUI()
   }
 
   private fun updatePomDurationSelection(mins: Int) {
@@ -1182,24 +1198,109 @@ class FocusActivity : AppCompatActivity() {
     style(pom_slotApp3, selectedApps.getOrNull(2))
   }
 
+  private fun showSetContactDialog(index: Int) {
+    pendingContactIndex = index
+    val options = arrayOf("Pick from Contacts", "Enter Number Manually")
+    AlertDialog.Builder(this)
+      .setTitle("Emergency Contact")
+      .setItems(options) { _, which ->
+        when (which) {
+          0 -> openPomContactPicker(index)
+          1 -> showManualContactInputDialog(index)
+        }
+      }
+      .show()
+  }
+
   private fun openPomContactPicker(index: Int) {
     pendingContactIndex = index
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-      callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+      contactPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
       return
     }
+    launchSystemContactPicker()
+  }
+
+  private fun launchSystemContactPicker() {
     try {
       pomContactPicker.launch(
         Intent(Intent.ACTION_PICK).setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE)
       )
     } catch (_: ActivityNotFoundException) {
       Toast.makeText(this, "No contact picker available", Toast.LENGTH_SHORT).show()
+      showManualContactInputDialog(pendingContactIndex)
+    }
+  }
+
+  private fun showManualContactInputDialog(index: Int) {
+    val layout = LinearLayout(this).apply {
+      orientation = LinearLayout.VERTICAL
+      val pad = (24 * resources.displayMetrics.density).toInt()
+      setPadding(pad, pad / 2, pad, pad / 2)
+    }
+    val nameInput = EditText(this).apply {
+      hint = "Contact Name (e.g., Mom)"
+      setText(emergencyContacts.getOrNull(index)?.first ?: "")
+      setSingleLine()
+    }
+    val numberInput = EditText(this).apply {
+      hint = "Phone Number (e.g., +1...)"
+      inputType = InputType.TYPE_CLASS_PHONE
+      setText(emergencyContacts.getOrNull(index)?.second ?: "")
+      setSingleLine()
+    }
+    layout.addView(nameInput)
+    layout.addView(numberInput)
+
+    AlertDialog.Builder(this)
+      .setTitle("Set Emergency Contact")
+      .setView(layout)
+      .setPositiveButton("Save") { _, _ ->
+        val rawNum = numberInput.text.toString().trim()
+        val rawName = nameInput.text.toString().trim().ifEmpty { rawNum }
+        if (rawNum.isNotEmpty()) {
+          saveEmergencyContact(index, rawName, rawNum)
+        } else {
+          Toast.makeText(this, "Phone number cannot be empty", Toast.LENGTH_SHORT).show()
+        }
+      }
+      .setNegativeButton("Cancel", null)
+      .show()
+  }
+
+  private fun saveEmergencyContact(index: Int, name: String, number: String) {
+    val cleanNum = number.filter { it.isDigit() || it == '+' || it == '*' || it == '#' }
+    if (cleanNum.isEmpty()) {
+      Toast.makeText(this, "Invalid phone number", Toast.LENGTH_SHORT).show()
+      return
+    }
+    emergencyContacts[index] = name to cleanNum
+    if (portraitUiInitialized) updatePomContactUI()
+
+    getSharedPreferences("pomodoro_contacts", Context.MODE_PRIVATE).edit()
+      .putString("contact_${index}_name", name)
+      .putString("contact_${index}_num", cleanNum)
+      .apply()
+  }
+
+  private fun loadSavedEmergencyContacts() {
+    val prefs = getSharedPreferences("pomodoro_contacts", Context.MODE_PRIVATE)
+    for (i in 0..1) {
+      val num = prefs.getString("contact_${i}_num", null)
+      val name = prefs.getString("contact_${i}_name", null)
+      if (!num.isNullOrBlank()) {
+        emergencyContacts[i] = (name ?: num) to num
+      }
     }
   }
 
   private fun removePomContact(index: Int) {
     emergencyContacts[index] = null
     updatePomContactUI()
+    getSharedPreferences("pomodoro_contacts", Context.MODE_PRIVATE).edit()
+      .remove("contact_${index}_name")
+      .remove("contact_${index}_num")
+      .apply()
   }
 
   private fun updatePomContactUI() {
@@ -1244,14 +1345,14 @@ class FocusActivity : AppCompatActivity() {
         val sanitizedNumber = number?.let(PhoneNumberUtils::stripSeparators)?.takeIf { it.isNotEmpty() }
 
         if (sanitizedNumber != null) {
-          emergencyContacts[pendingContactIndex] = (name ?: sanitizedNumber) to sanitizedNumber
-          if (portraitUiInitialized) updatePomContactUI()
+          saveEmergencyContact(pendingContactIndex, name ?: sanitizedNumber, sanitizedNumber)
         } else {
           Toast.makeText(this, "Selected contact has no phone number", Toast.LENGTH_SHORT).show()
         }
       } ?: Toast.makeText(this, "Unable to read selected contact", Toast.LENGTH_SHORT).show()
     } catch (e: Exception) {
       Toast.makeText(this, "Error reading contact: ${e.message ?: "unknown error"}", Toast.LENGTH_SHORT).show()
+      showManualContactInputDialog(pendingContactIndex)
     }
   }
 
@@ -1294,12 +1395,33 @@ class FocusActivity : AppCompatActivity() {
 
   private fun makeDirectCall(num: String) {
     try {
-      val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:${Uri.encode(num)}")).apply {
+      val cleanNum = num.trim().filter { it.isDigit() || it == '+' || it == '*' || it == '#' }
+      if (cleanNum.isEmpty()) {
+        Toast.makeText(this, "Invalid emergency number", Toast.LENGTH_SHORT).show()
+        return
+      }
+
+      PomodoroManager.isEmergencyCallActive = true
+      PomodoroManager.lastEmergencyCallTime = android.os.SystemClock.uptimeMillis()
+      PomodoroManager.lastLaunchTime = android.os.SystemClock.uptimeMillis()
+
+      val callUri = Uri.fromParts("tel", cleanNum, null)
+      val intent = Intent(Intent.ACTION_CALL, callUri).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK
       }
       startActivity(intent)
     } catch (e: Exception) {
-      Toast.makeText(this, "Direct call failed: ${e.message}", Toast.LENGTH_SHORT).show()
+      try {
+        val cleanNum = num.trim().filter { it.isDigit() || it == '+' || it == '*' || it == '#' }
+        val dialUri = Uri.fromParts("tel", cleanNum, null)
+        val dialIntent = Intent(Intent.ACTION_DIAL, dialUri).apply {
+          flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(dialIntent)
+      } catch (ex: Exception) {
+        PomodoroManager.isEmergencyCallActive = false
+        Toast.makeText(this, "Direct call failed: ${ex.message}", Toast.LENGTH_SHORT).show()
+      }
     }
   }
 
@@ -1351,11 +1473,13 @@ class FocusActivity : AppCompatActivity() {
       "session ${PomodoroManager.currentSession}"
     }
     
-    emergencyContacts.indices.forEach { emergencyContacts[it] = PomodoroManager.emergencyContacts[it] }
+    emergencyContacts.indices.forEach { index ->
+      emergencyContacts[index] = PomodoroManager.emergencyContacts.getOrNull(index) ?: emergencyContacts.getOrNull(index)
+    }
     listOf(pom_btnCallContact, pom_btnCallContact2).forEachIndexed { index, view ->
         val contact = emergencyContacts[index]
         view.visibility = if (contact == null) View.GONE else View.VISIBLE
-        (view as TextView).text = contact?.let { "CALL ${it.first}" } ?: ""
+        (view as TextView).text = contact?.let { "CALL ${it.first.uppercase()}" } ?: ""
     }
     
     // Populate active app slots from PomodoroManager.userSelectedApps
@@ -1466,12 +1590,18 @@ class FocusActivity : AppCompatActivity() {
     super.onWindowFocusChanged(hasFocus)
     if (PomodoroManager.isWorkSessionActive()) {
       if (!hasFocus) {
+        if (PomodoroManager.isEmergencyCallActive) {
+          return
+        }
         val timeSinceLaunch = android.os.SystemClock.uptimeMillis() - PomodoroManager.lastLaunchTime
         if (timeSinceLaunch >= 2500) {
           collapseNotificationShade()
         }
       } else {
         applyPomodoroImmersiveMode(true)
+        if (PomodoroManager.isEmergencyCallActive && !PomodoroManager.isEmergencyCallOngoing(this)) {
+          PomodoroManager.isEmergencyCallActive = false
+        }
       }
     }
   }

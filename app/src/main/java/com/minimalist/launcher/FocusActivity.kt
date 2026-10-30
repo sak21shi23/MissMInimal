@@ -1,0 +1,1543 @@
+package com.minimalist.launcher
+
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import android.animation.ValueAnimator
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.app.AlertDialog
+import android.app.NotificationManager
+import android.content.Intent
+import android.content.ActivityNotFoundException
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.provider.Settings
+import android.provider.ContactsContract
+import android.telephony.PhoneNumberUtils
+import android.transition.Fade
+import android.transition.TransitionManager
+import android.view.View
+import android.view.ViewGroup
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
+
+
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.NumberPicker
+import android.widget.ScrollView
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import kotlin.math.abs
+
+class FocusActivity : AppCompatActivity() {
+  private var portraitUiInitialized = false
+  private var timerReceiverRegistered = false
+
+  private val handler = Handler(Looper.getMainLooper())
+  private var swSeconds = 0
+  private var swRunning = false
+  private var swPaused = false
+
+  private var timerHours = 0
+  private var timerMinutes = 0
+  private var timerSeconds = 0
+  private var timerRemaining = 0
+  private var timerRunning = false
+  private var timerPaused = false
+
+  private var strictRemainingSeconds = 0
+  private var strictCountdownRunnable: Runnable? = null
+
+  private lateinit var scrollTimer: ScrollView
+  private lateinit var scrollStrict: ScrollView
+  private lateinit var scrollPomodoroSetup: ScrollView
+
+  private lateinit var tabStopwatch: TextView
+  private lateinit var tabTimer: TextView
+  private lateinit var tabStrict: TextView
+  private lateinit var tabPomodoro: TextView
+  private lateinit var panelStopwatch: LinearLayout
+  private lateinit var panelTimer: LinearLayout
+  private lateinit var panelStrict: LinearLayout
+  private lateinit var panelStrictActive: FrameLayout
+  private lateinit var tvStopwatch: TextView
+  private lateinit var tvStrictCountdown: TextView
+  private lateinit var tvStrictStatus: TextView
+  private lateinit var layoutStrictComplete: LinearLayout
+  private lateinit var btnStartAgain: TextView
+  private lateinit var btnExitStrict: TextView
+  private lateinit var btnEnableStrict: TextView
+  private var strictDurationMins: Int = 15
+  private var tvStrictDesc: TextView? = null
+  private var btnStrictMinus: TextView? = null
+  private var btnStrictPlus: TextView? = null
+  private var tvStrictDurationVal: TextView? = null
+  private var seekStrictDuration: SeekBar? = null
+
+  // Pomodoro Fields
+  private var selectedDurationMins = 25
+  private val selectedApps = mutableListOf<String>()
+  private val emergencyContacts = MutableList<Pair<String, String>?>(2) { null }
+  private var pendingContactIndex = 0
+
+  private val pomContactPicker = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    if (result.resultCode == RESULT_OK) {
+      result.data?.data?.let(::handlePomContactResult)
+        ?: Toast.makeText(this, "Unable to read selected contact", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  private var pendingCallNumber: String? = null
+  private val callPermissionLauncher = registerForActivityResult(
+    ActivityResultContracts.RequestPermission()
+  ) { isGranted ->
+    if (isGranted) {
+      val num = pendingCallNumber
+      if (num != null) {
+        makeDirectCall(num)
+      } else {
+        try {
+          pomContactPicker.launch(
+            Intent(Intent.ACTION_PICK).setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE)
+          )
+        } catch (_: Exception) {}
+      }
+    } else {
+      Toast.makeText(this, "Call permission required for direct emergency calls", Toast.LENGTH_SHORT).show()
+    }
+    pendingCallNumber = null
+  }
+
+  private lateinit var panelPomodoro: FrameLayout
+  private lateinit var pom_layoutSetup: LinearLayout
+  private lateinit var pom_layoutActive: LinearLayout
+  private lateinit var pom_btnDur25: TextView
+  private lateinit var pom_btnDur50: TextView
+  private lateinit var pom_btnDur75: TextView
+  private lateinit var pom_btnDur100: TextView
+  private lateinit var pom_slotApp1: TextView
+  private lateinit var pom_slotApp2: TextView
+  private lateinit var pom_slotApp3: TextView
+  private lateinit var pom_tvContactName: TextView
+  private lateinit var pom_tvContactName2: TextView
+  private lateinit var pom_btnRemoveContact: View
+  private lateinit var pom_btnRemoveContact2: View
+  private lateinit var pom_btnStartPomodoro: View
+  private lateinit var pom_tvPhaseLabel: TextView
+  private lateinit var pom_tvCountdown: TextView
+  private lateinit var pom_tvSessionCount: TextView
+  private lateinit var pom_btnCallContact: View
+  private lateinit var pom_btnCallContact2: View
+  private lateinit var pom_btnCancelBreak: View
+  private lateinit var pom_active_slot1: TextView
+  private lateinit var pom_active_slot2: TextView
+  private lateinit var pom_active_slot3: TextView
+
+  private lateinit var tabIndicator: View
+
+  private val timerReceiver = object : BroadcastReceiver() {
+    override fun onReceive(context: Context?, intent: Intent?) {
+      if (intent == null) return
+      when (intent.action) {
+        PomodoroTimerService.BROADCAST_TICK -> {
+          val remaining = intent.getIntExtra("remaining", 0)
+          val isWork = intent.getBooleanExtra("is_work", true)
+          updatePomTimerUI(remaining, isWork)
+        }
+        PomodoroTimerService.BROADCAST_PHASE_CHANGE -> {
+          val isWork = intent.getBooleanExtra("is_work", true)
+          val session = intent.getIntExtra("session", 1)
+          onPomPhaseChanged(isWork, session)
+        }
+        PomodoroTimerService.BROADCAST_COMPLETE -> {
+          onPomodoroCompleted()
+        }
+      }
+    }
+  }
+
+  private lateinit var vibrator: Vibrator
+  private lateinit var gestureDetector: GestureDetector
+  private var currentTabIndex = 0
+  private val TABS = arrayOf("stopwatch", "timer", "strict", "pomodoro")
+
+
+  override fun onNewIntent(intent: Intent?) {
+    super.onNewIntent(intent)
+    handleIntent(intent)
+  }
+
+  private fun handleIntent(intent: Intent?) {
+    if (!portraitUiInitialized) return
+    intent ?: return
+    
+    val tab = intent.getStringExtra("tab")
+    if (tab != null) {
+      selectTab(tab)
+    }
+
+    if (intent.getBooleanExtra("show_strict_timer", false)) {
+      showStrictCountdown()
+    }
+
+    val openTab = intent.getStringExtra("open_tab")
+    if (openTab == "strict") {
+      // Switch to strict tab
+      selectStrictTab()
+      // Show the warning screen with ENABLE button
+      showStrictWarningScreen()
+    }
+  }
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    if (savedInstanceState != null) {
+      val savedApps = savedInstanceState.getStringArrayList("pom_selected_apps")
+      if (savedApps != null) {
+        selectedApps.clear()
+        selectedApps.addAll(savedApps)
+      }
+      selectedDurationMins = savedInstanceState.getInt("pom_selected_duration", 25)
+      emergencyContacts.indices.forEach { index ->
+        val name = savedInstanceState.getString("pom_contact_${index}_name")
+        val number = savedInstanceState.getString("pom_contact_${index}_number")
+        emergencyContacts[index] = number?.takeIf(String::isNotBlank)?.let { (name ?: it) to it }
+      }
+      pendingContactIndex = savedInstanceState.getInt("pom_pending_contact", 0).coerceIn(0, 1)
+    }
+    
+    // Check orientation first to prevent crashes and show requirement message
+    val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    if (isLandscape) {
+      setContentView(R.layout.activity_focus) // Loads layout-land/activity_focus.xml
+      findViewById<View>(R.id.btnExitLandscape)?.setOnClickListener {
+        finish()
+      }
+      return // Skip all initialization below to avoid crashes
+    }
+
+    try {
+      setContentView(R.layout.activity_focus)
+      vibrator = if (Build.VERSION.SDK_INT >= 31)
+        getSystemService(VibratorManager::class.java).defaultVibrator
+      else
+        @Suppress("DEPRECATION") getSystemService(VIBRATOR_SERVICE) as Vibrator
+
+      bindViews()
+      setupGestures()
+      PomodoroManager.restoreFromPrefs(this)
+      restorePomodoroState()
+      setupTabs()
+      setupStopwatch()
+      setupTimer()
+      setupStrictMode()
+      setupPomodoro()
+      portraitUiInitialized = true
+
+      handleIntent(intent)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      android.widget.Toast.makeText(
+        this, "Focus mode error: ${e.message}", 
+        android.widget.Toast.LENGTH_LONG).show()
+      finish()
+    }
+  }
+
+  private fun restorePomodoroState() {
+    if (PomodoroManager.isActive) {
+      // Restore local selectedApps from PomodoroManager
+      selectedApps.clear()
+      selectedApps.addAll(PomodoroManager.userSelectedApps)
+      // Restore contact info
+      emergencyContacts.indices.forEach { emergencyContacts[it] = PomodoroManager.emergencyContacts[it] }
+    }
+  }
+
+  private fun setupGestures() {
+    gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+      private val SWIPE_THRESHOLD = 100
+      private val SWIPE_VELOCITY_THRESHOLD = 100
+
+      override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        if (e1 == null) return false
+        if (StrictModeManager.isActive() || PomodoroManager.isActive) return false
+        val diffX = e2.x - e1.x
+        val diffY = e2.y - e1.y
+        if (abs(diffX) > abs(diffY) && abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+            if (diffX > 0) {
+              // Swipe right -> Previous tab
+              if (currentTabIndex > 0) {
+                  vibrateTick()
+                  selectTab(TABS[currentTabIndex - 1])
+              }
+            } else {
+              // Swipe left -> Next tab
+              if (currentTabIndex < TABS.size - 1) {
+                  vibrateTick()
+                  selectTab(TABS[currentTabIndex + 1])
+              }
+            }
+          return true
+        }
+        return false
+      }
+    })
+  }
+
+  override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+    if (portraitUiInitialized) gestureDetector.onTouchEvent(ev)
+    return super.dispatchTouchEvent(ev)
+  }
+
+  private fun selectStrictTab() {
+    updateTabUI(tabStrict)
+
+    scrollStrict.visibility = View.VISIBLE
+    panelStopwatch.visibility = View.GONE
+    scrollTimer.visibility = View.GONE
+    panelPomodoro.visibility = View.GONE
+  }
+
+  private fun updateTabUI(activeTab: TextView) {
+    val inactiveColor = android.graphics.Color.parseColor("#8E8E93")
+    val activeColor = android.graphics.Color.WHITE
+
+    val tabs = listOf(tabStopwatch, tabTimer, tabStrict, tabPomodoro)
+    tabs.forEach { tab ->
+      if (tab == activeTab) {
+        tab.setTextColor(activeColor)
+        tab.animate().alpha(1.0f).setDuration(200).start()
+      } else {
+        tab.setTextColor(inactiveColor)
+        tab.animate().alpha(0.4f).setDuration(200).start()
+      }
+    }
+    
+    moveTabIndicator(activeTab)
+  }
+
+  private fun moveTabIndicator(targetView: View) {
+    tabIndicator.post {
+      val targetX = targetView.x
+      val targetWidth = targetView.width
+      
+      tabIndicator.animate()
+        .x(targetX)
+        .setDuration(300)
+        .setInterpolator(AccelerateDecelerateInterpolator())
+        .setUpdateListener {
+            val params = tabIndicator.layoutParams
+            params.width = targetWidth
+            tabIndicator.layoutParams = params
+        }
+        .start()
+        
+      // For width animation specifically, ValueAnimator is better
+      val widthAnimator = ValueAnimator.ofInt(tabIndicator.width, targetWidth)
+      widthAnimator.addUpdateListener { animator ->
+          val params = tabIndicator.layoutParams
+          params.width = animator.animatedValue as Int
+          tabIndicator.layoutParams = params
+      }
+      widthAnimator.duration = 300
+      widthAnimator.interpolator = AccelerateDecelerateInterpolator()
+      widthAnimator.start()
+    }
+  }
+
+  fun selectTab(tab: String) {
+    if (tab == "strict") {
+      onStrictTabSelected()
+      return
+    }
+
+    tabStopwatch.setTextColor(android.graphics.Color.parseColor("#8E8E93"))
+    tabTimer.setTextColor(android.graphics.Color.parseColor("#8E8E93"))
+    tabStrict.setTextColor(android.graphics.Color.parseColor("#8E8E93"))
+    tabPomodoro.setTextColor(android.graphics.Color.parseColor("#8E8E93"))
+
+    panelStopwatch.visibility = View.GONE
+    scrollTimer.visibility = View.GONE
+    scrollStrict.visibility = View.GONE
+    panelPomodoro.visibility = View.GONE
+
+    when (tab) {
+      "stopwatch" -> {
+        currentTabIndex = 0
+        updateTabUI(tabStopwatch)
+        panelStopwatch.visibility = View.VISIBLE
+      }
+      "timer" -> {
+        currentTabIndex = 1
+        updateTabUI(tabTimer)
+        scrollTimer.visibility = View.VISIBLE
+      }
+      "strict" -> {
+        currentTabIndex = 2
+        updateTabUI(tabStrict)
+        scrollStrict.visibility = View.VISIBLE
+      }
+      "pomodoro" -> {
+        currentTabIndex = 3
+        updateTabUI(tabPomodoro)
+        panelPomodoro.visibility = View.VISIBLE
+        if (PomodoroManager.isActive) {
+          showPomActiveScreen()
+        } else {
+          showPomSetupScreen()
+        }
+      }
+    }
+    savePersistedTab(tab)
+  }
+
+  fun onStrictTabSelected() {
+    val prefs = getSharedPreferences("strict_prefs", MODE_PRIVATE)
+    val startNow = prefs.getBoolean("start_immediately", false)
+    
+    if (startNow) {
+      prefs.edit()
+        .remove("start_immediately")
+        .apply()
+      startStrictMode()
+      return
+    }
+    
+    currentTabIndex = 2
+    savePersistedTab("strict")
+    
+    if (StrictModeManager.isActive()) {
+      val remaining = StrictModeManager.getRemainingMs() / 1000
+      strictRemainingSeconds = remaining.toInt()
+      showStrictCountdown()
+      resumeCountdown()
+    } else {
+      selectStrictTab()
+      showStrictWarningScreen()
+    }
+  }
+
+  private fun savePersistedTab(tab: String) {
+    getSharedPreferences("miss_prefs", MODE_PRIVATE)
+        .edit().putString("last_focus_tab", tab).apply()
+  }
+
+  private fun showStrictWarningScreen() {
+    findViewById<View>(R.id.layoutStrictWarning).visibility = View.VISIBLE
+    btnEnableStrict.visibility = View.VISIBLE
+  }
+
+  private fun bindViews() {
+    tabStopwatch = findViewById(R.id.tabStopwatch)
+    tabTimer = findViewById(R.id.tabTimer)
+    tabStrict = findViewById(R.id.tabStrict)
+    tabPomodoro = findViewById(R.id.tabPomodoro)
+
+    panelStopwatch = findViewById(R.id.panelStopwatch)
+    panelTimer = findViewById(R.id.panelTimer)
+    panelStrict = findViewById(R.id.panelStrict)
+    panelStrictActive = findViewById(R.id.panelStrictActive)
+
+    tvStopwatch = findViewById(R.id.tvStopwatch)
+    tvStrictCountdown = findViewById(R.id.tvStrictCountdown)
+    tvStrictStatus = findViewById(R.id.tvStrictStatus)
+    layoutStrictComplete = findViewById(R.id.layoutStrictComplete)
+
+    btnStartAgain = findViewById(R.id.btnStartAgain)
+    btnExitStrict = findViewById(R.id.btnExitStrict)
+    btnEnableStrict = findViewById(R.id.btnEnableStrict)
+    tvStrictDesc = findViewById(R.id.tvStrictDesc)
+    btnStrictMinus = findViewById(R.id.btnStrictMinus)
+    btnStrictPlus = findViewById(R.id.btnStrictPlus)
+    tvStrictDurationVal = findViewById(R.id.tvStrictDurationVal)
+    seekStrictDuration = findViewById(R.id.seekStrictDuration)
+
+    tabIndicator = findViewById(R.id.tabIndicator)
+
+    panelPomodoro = findViewById(R.id.panelPomodoro)
+    scrollTimer = findViewById(R.id.scrollTimer)
+    scrollStrict = findViewById(R.id.scrollStrict)
+    scrollPomodoroSetup = findViewById(R.id.scrollPomodoroSetup)
+    pom_layoutSetup = findViewById(R.id.pom_layoutSetup)
+    pom_layoutActive = findViewById(R.id.pom_layoutActive)
+    pom_btnDur25 = findViewById(R.id.pom_btnDur25)
+    pom_btnDur50 = findViewById(R.id.pom_btnDur50)
+    pom_btnDur75 = findViewById(R.id.pom_btnDur75)
+    pom_btnDur100 = findViewById(R.id.pom_btnDur100)
+    pom_slotApp1 = findViewById(R.id.pom_slotApp1)
+    pom_slotApp2 = findViewById(R.id.pom_slotApp2)
+    pom_slotApp3 = findViewById(R.id.pom_slotApp3)
+    pom_tvContactName = findViewById(R.id.pom_tvContactName)
+    pom_tvContactName2 = findViewById(R.id.pom_tvContactName2)
+    pom_btnRemoveContact = findViewById(R.id.pom_btnRemoveContact)
+    pom_btnRemoveContact2 = findViewById(R.id.pom_btnRemoveContact2)
+    pom_btnStartPomodoro = findViewById(R.id.pom_btnStartPomodoro)
+    pom_tvPhaseLabel = findViewById(R.id.pom_tvPhaseLabel)
+    pom_tvCountdown = findViewById(R.id.pom_tvCountdown)
+    pom_tvSessionCount = findViewById(R.id.pom_tvSessionCount)
+    pom_btnCallContact = findViewById(R.id.pom_btnCallContact)
+    pom_btnCallContact2 = findViewById(R.id.pom_btnCallContact2)
+    pom_btnCancelBreak = findViewById(R.id.pom_btnCancelBreak)
+    pom_active_slot1 = findViewById(R.id.pom_active_slot1)
+    pom_active_slot2 = findViewById(R.id.pom_active_slot2)
+    pom_active_slot3 = findViewById(R.id.pom_active_slot3)
+  }
+
+  private fun setupTabs() {
+    fun resolveTab(tab: Int) {
+      if (StrictModeManager.isActive() || PomodoroManager.isActive) return
+      when (tab) {
+        0 -> selectTab("stopwatch")
+        1 -> selectTab("timer")
+        2 -> selectTab("strict")
+        3 -> selectTab("pomodoro")
+      }
+    }
+
+    val lastTab = getSharedPreferences("miss_prefs", MODE_PRIVATE).getString("last_focus_tab", "stopwatch")
+    selectTab(lastTab ?: "stopwatch")
+    
+    tabStopwatch.setOnClickListener { resolveTab(0); vibrateTick() }
+    tabTimer.setOnClickListener { resolveTab(1); vibrateTick() }
+    tabStrict.setOnClickListener {
+      vibrateTick()
+      if (!checkAllStrictPermissions()) {
+        startActivity(Intent(this, PermissionOnboardingActivity::class.java))
+      } else {
+        onStrictTabSelected()
+      }
+    }
+    tabPomodoro.setOnClickListener {
+        vibrateTick()
+        selectTab("pomodoro")
+    }
+    
+    listOf(tabStopwatch, tabTimer, tabStrict, tabPomodoro).forEach { it.addPressEffect() }
+  }
+
+  private var stopwatchRunnable: Runnable? = null
+  private var timerRunnable: Runnable? = null
+
+  private fun setupStopwatch() {
+    FocusTimerManager.init(this)
+    val btnStart = findViewById<TextView>(R.id.btnSwStart)
+    val btnPause = findViewById<TextView>(R.id.btnSwPause)
+    val btnStop = findViewById<TextView>(R.id.btnSwStop)
+    val btnResume = findViewById<TextView>(R.id.btnSwResume)
+
+    val btnFlag = findViewById<TextView>(R.id.btnSwFlag)
+    val scrollTimestamps = findViewById<View>(R.id.scrollTimestamps)
+    val tvTimestamps = findViewById<TextView>(R.id.tvTimestamps)
+
+    // Restore state from FocusTimerManager
+    if (FocusTimerManager.swRunning) {
+      btnStart.visibility = View.GONE
+      btnStop.visibility = View.VISIBLE
+      scrollTimestamps.visibility = View.VISIBLE
+      tvTimestamps.text = FocusTimerManager.swLaps.joinToString("\n")
+      val elapsed = FocusTimerManager.getStopwatchElapsedSeconds()
+      tvStopwatch.text = "%02d:%02d".format(elapsed / 60, elapsed % 60)
+      if (FocusTimerManager.swPaused) {
+        btnPause.visibility = View.GONE
+        btnResume.visibility = View.VISIBLE
+        btnFlag.visibility = View.GONE
+      } else {
+        btnPause.visibility = View.VISIBLE
+        btnResume.visibility = View.GONE
+        btnFlag.visibility = View.VISIBLE
+        runStopwatch()
+      }
+    }
+
+    btnStart.setOnClickListener {
+      FocusTimerManager.startStopwatch(this)
+      btnStart.visibility = View.GONE
+      btnPause.visibility = View.VISIBLE
+      btnStop.visibility = View.VISIBLE
+      btnFlag.visibility = View.VISIBLE
+      scrollTimestamps.visibility = View.VISIBLE
+      tvTimestamps.text = ""
+      runStopwatch()
+    }
+    listOf(btnStart, btnPause, btnStop, btnResume, btnFlag).forEach { it.addPressEffect() }
+    btnPause.setOnClickListener {
+      FocusTimerManager.pauseStopwatch(this)
+      stopwatchRunnable?.let { handler.removeCallbacks(it) }
+      btnPause.visibility = View.GONE; btnResume.visibility = View.VISIBLE
+      btnFlag.visibility = View.GONE
+      val elapsed = FocusTimerManager.getStopwatchElapsedSeconds()
+      tvStopwatch.text = "%02d:%02d".format(elapsed / 60, elapsed % 60)
+    }
+    btnResume.setOnClickListener {
+      FocusTimerManager.resumeStopwatch(this)
+      btnResume.visibility = View.GONE; btnPause.visibility = View.VISIBLE
+      btnFlag.visibility = View.VISIBLE
+      runStopwatch()
+    }
+    btnFlag.setOnClickListener {
+      val elapsed = FocusTimerManager.getStopwatchElapsedSeconds()
+      val m = elapsed / 60; val s = elapsed % 60
+      val ts = "%02d:%02d".format(m, s)
+      FocusTimerManager.addStopwatchLap(this, ts)
+      tvTimestamps.text = FocusTimerManager.swLaps.joinToString("\n")
+    }
+    btnStop.setOnClickListener {
+      stopwatchRunnable?.let { handler.removeCallbacks(it) }
+      val elapsedSeconds = FocusTimerManager.stopStopwatch(this)
+      tvStopwatch.text = "00:00"
+      tvTimestamps.text = ""
+      btnStart.visibility = View.VISIBLE; btnPause.visibility = View.GONE
+      btnStop.visibility = View.GONE; btnResume.visibility = View.GONE
+      btnFlag.visibility = View.GONE
+      scrollTimestamps.visibility = View.GONE
+      SotActivity.saveModeSession(this, "stopwatch", elapsedSeconds / 60)
+    }
+  }
+
+  private fun runStopwatch() {
+    stopwatchRunnable?.let { handler.removeCallbacks(it) }
+    stopwatchRunnable = object : Runnable {
+      override fun run() {
+        if (!FocusTimerManager.swRunning || FocusTimerManager.swPaused) return
+        val elapsed = FocusTimerManager.getStopwatchElapsedSeconds()
+        val m = elapsed / 60; val s = elapsed % 60
+        tvStopwatch.text = "%02d:%02d".format(m, s)
+        handler.postDelayed(this, 1000)
+      }
+    }
+    handler.post(stopwatchRunnable!!)
+  }
+
+  private fun setupTimer() {
+    FocusTimerManager.init(this)
+    val hPicker = findViewById<NumberPicker>(R.id.pickerHours)
+    val mPicker = findViewById<NumberPicker>(R.id.pickerMinutes)
+    val sPicker = findViewById<NumberPicker>(R.id.pickerSeconds)
+    hPicker.minValue = 0; hPicker.maxValue = 99
+    mPicker.minValue = 0; mPicker.maxValue = 59
+    sPicker.minValue = 0; sPicker.maxValue = 59
+    styleNumberPicker(hPicker); styleNumberPicker(mPicker); styleNumberPicker(sPicker)
+
+    val btnStart = findViewById<TextView>(R.id.btnTimerStart)
+    val btnPause = findViewById<TextView>(R.id.btnTimerPause)
+    val btnStop = findViewById<TextView>(R.id.btnTimerStop)
+    val btnResume = findViewById<TextView>(R.id.btnTimerResume)
+    val btnReset = findViewById<TextView>(R.id.btnTimerReset)
+    val layoutPickers = findViewById<View>(R.id.layoutPickers)
+    val tvCountdown = findViewById<TextView>(R.id.tvTimerCountdown)
+    val tvUp = findViewById<TextView>(R.id.tvTimeUp)
+
+    // Restore Timer from FocusTimerManager
+    if (FocusTimerManager.timerRunning) {
+      val remaining = FocusTimerManager.getTimerRemainingSeconds()
+      if (remaining <= 0) {
+        layoutPickers.visibility = View.GONE; tvCountdown.visibility = View.GONE
+        tvUp.visibility = View.VISIBLE; btnStart.visibility = View.GONE
+        btnPause.visibility = View.GONE; btnStop.visibility = View.GONE
+        btnResume.visibility = View.GONE; btnReset.visibility = View.VISIBLE
+      } else {
+        layoutPickers.visibility = View.GONE; tvCountdown.visibility = View.VISIBLE; tvUp.visibility = View.GONE
+        btnStart.visibility = View.GONE; btnStop.visibility = View.VISIBLE
+        val h = remaining / 3600; val m = (remaining % 3600) / 60; val s = remaining % 60
+        tvCountdown.text = "%02d:%02d:%02d".format(h, m, s)
+        if (FocusTimerManager.timerPaused) {
+          btnPause.visibility = View.GONE; btnResume.visibility = View.VISIBLE
+        } else {
+          btnPause.visibility = View.VISIBLE; btnResume.visibility = View.GONE
+          runTimer(tvCountdown, tvUp, btnPause, btnStop, btnReset)
+        }
+      }
+    }
+
+    btnStart.setOnClickListener {
+      val total = hPicker.value * 3600 + mPicker.value * 60 + sPicker.value
+      if (total <= 0) {
+        Toast.makeText(this, "Set a time first", Toast.LENGTH_SHORT).show()
+        return@setOnClickListener
+      }
+      FocusTimerManager.startTimer(this, total)
+      layoutPickers.visibility = View.GONE; tvCountdown.visibility = View.VISIBLE; tvUp.visibility = View.GONE
+      btnStart.visibility = View.GONE; btnPause.visibility = View.VISIBLE; btnStop.visibility = View.VISIBLE
+      val h = total / 3600; val m = (total % 3600) / 60; val s = total % 60
+      tvCountdown.text = "%02d:%02d:%02d".format(h, m, s)
+      runTimer(tvCountdown, tvUp, btnPause, btnStop, btnReset)
+    }
+
+    btnPause.setOnClickListener {
+      FocusTimerManager.pauseTimer(this)
+      timerRunnable?.let { handler.removeCallbacks(it) }
+      btnPause.visibility = View.GONE; btnResume.visibility = View.VISIBLE
+      val remaining = FocusTimerManager.getTimerRemainingSeconds()
+      val h = remaining / 3600; val m = (remaining % 3600) / 60; val s = remaining % 60
+      tvCountdown.text = "%02d:%02d:%02d".format(h, m, s)
+    }
+    btnResume.setOnClickListener {
+      FocusTimerManager.resumeTimer(this)
+      btnResume.visibility = View.GONE; btnPause.visibility = View.VISIBLE
+      runTimer(tvCountdown, tvUp, btnPause, btnStop, btnReset)
+    }
+    btnStop.setOnClickListener {
+      timerRunnable?.let { handler.removeCallbacks(it) }
+      FocusTimerManager.resetTimer(this)
+      resetTimer(layoutPickers, tvCountdown, tvUp, btnStart, btnPause, btnStop, btnResume, btnReset, hPicker, mPicker, sPicker)
+    }
+    btnReset.setOnClickListener {
+      timerRunnable?.let { handler.removeCallbacks(it) }
+      FocusTimerManager.resetTimer(this)
+      resetTimer(layoutPickers, tvCountdown, tvUp, btnStart, btnPause, btnStop, btnResume, btnReset, hPicker, mPicker, sPicker)
+    }
+  }
+
+  private fun runTimer(tv: TextView, up: TextView, pause: View, stop: View, reset: View) {
+    timerRunnable?.let { handler.removeCallbacks(it) }
+    timerRunnable = object : Runnable {
+      override fun run() {
+        if (!FocusTimerManager.timerRunning || FocusTimerManager.timerPaused) return
+        val remaining = FocusTimerManager.getTimerRemainingSeconds()
+        if (remaining <= 0) {
+          FocusTimerManager.resetTimer(this@FocusActivity)
+          up.visibility = View.VISIBLE; tv.visibility = View.GONE
+          pause.visibility = View.GONE; stop.visibility = View.GONE; reset.visibility = View.VISIBLE
+          val pattern = longArrayOf(0, 300, 200, 300, 200, 300, 200)
+          if (Build.VERSION.SDK_INT >= 26) vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+          else @Suppress("DEPRECATION") vibrator.vibrate(pattern, -1)
+          SotActivity.saveModeSession(this@FocusActivity, "timer", FocusTimerManager.timerTotalSeconds / 60)
+          return
+        }
+        val h = remaining / 3600; val m = (remaining % 3600) / 60; val s = remaining % 60
+        tv.text = "%02d:%02d:%02d".format(h, m, s)
+        handler.postDelayed(this, 1000)
+      }
+    }
+    handler.post(timerRunnable!!)
+  }
+
+  private fun resetTimer(lp: View, tv: View, up: View, start: View, pause: View, stop: View, resume: View, reset: View, hp: NumberPicker, mp: NumberPicker, sp: NumberPicker) {
+    FocusTimerManager.resetTimer(this)
+    lp.visibility = View.VISIBLE; tv.visibility = View.GONE; up.visibility = View.GONE
+    start.visibility = View.VISIBLE; pause.visibility = View.GONE; stop.visibility = View.GONE; resume.visibility = View.GONE; reset.visibility = View.GONE
+    hp.value = 0; mp.value = 0; sp.value = 0
+  }
+
+
+  private fun styleNumberPicker(p: NumberPicker) {
+    try {
+      val f = NumberPicker::class.java.getDeclaredField("mSelectorWheelPaint")
+      f.isAccessible = true
+      (f.get(p) as android.graphics.Paint).color = android.graphics.Color.WHITE
+      p.invalidate()
+    } catch (e: Exception) {}
+  }
+
+  fun applyStrictUiState(state: StrictUiState) {
+    val layoutStrictWarning = findViewById<LinearLayout>(R.id.layoutStrictWarning)
+    StrictModeManager.uiState = state
+    when (state) {
+      StrictUiState.SETUP -> {
+        layoutStrictWarning.visibility = View.VISIBLE
+        panelStrictActive.visibility = View.GONE
+        layoutStrictComplete.visibility = View.GONE
+        findViewById<View>(R.id.tabBar).visibility = View.VISIBLE
+      }
+      StrictUiState.RUNNING -> {
+        layoutStrictWarning.visibility = View.GONE
+        panelStrictActive.visibility = View.VISIBLE
+        layoutStrictComplete.visibility = View.GONE
+        findViewById<View>(R.id.tabBar).visibility = View.GONE
+      }
+      StrictUiState.COMPLETE -> {
+        layoutStrictWarning.visibility = View.GONE
+        panelStrictActive.visibility = View.VISIBLE
+        layoutStrictComplete.visibility = View.VISIBLE
+        findViewById<View>(R.id.tabBar).visibility = View.GONE
+        tvStrictStatus.text = "session complete"
+      }
+    }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    AppFont.applyToActivity(this)
+    if (!portraitUiInitialized) return
+    
+    if (FocusTimerManager.swRunning && !FocusTimerManager.swPaused) {
+      runStopwatch()
+    }
+    if (FocusTimerManager.timerRunning && !FocusTimerManager.timerPaused) {
+      val tvCountdown = findViewById<TextView>(R.id.tvTimerCountdown)
+      val tvUp = findViewById<TextView>(R.id.tvTimeUp)
+      val btnPause = findViewById<TextView>(R.id.btnTimerPause)
+      val btnStop = findViewById<TextView>(R.id.btnTimerStop)
+      val btnReset = findViewById<TextView>(R.id.btnTimerReset)
+      runTimer(tvCountdown, tvUp, btnPause, btnStop, btnReset)
+    }
+    
+    val navPrefs = getSharedPreferences("strict_nav", MODE_PRIVATE)
+    val proceed = navPrefs.getBoolean("proceed", false)
+    val proceedTarget = navPrefs.getString("proceed_target", "strict")
+    if (proceed) {
+      navPrefs.edit().remove("proceed").remove("proceed_target").apply()
+      if (proceedTarget == "pomodoro") {
+        selectTab("pomodoro")
+        startPomodoro()
+      } else {
+        selectTab("strict")
+        startStrictMode()
+      }
+      return
+    }
+
+    // Check if returning from permission screen
+    val prefs = getSharedPreferences("strict_prefs", MODE_PRIVATE)
+    val startNow = prefs.getBoolean("start_immediately", false)
+    
+    if (startNow) {
+      prefs.edit()
+        .remove("start_immediately")
+        .apply()
+      // Switch to strict tab and start timer
+      selectTab("strict")
+      startStrictMode()
+      return
+    }
+    
+    // Restore timer if already running
+    StrictModeManager.restoreFromPrefs(this)
+    when {
+      StrictModeManager.isActive() -> {
+        selectTab("strict")
+        applyStrictUiState(StrictUiState.RUNNING)
+        val remaining = StrictModeManager.getRemainingMs() / 1000
+        strictRemainingSeconds = remaining.toInt()
+        showStrictCountdown()
+        resumeCountdown()
+      }
+      StrictModeManager.uiState == StrictUiState.COMPLETE -> {
+        selectTab("strict")
+        applyStrictUiState(StrictUiState.COMPLETE)
+      }
+      else -> {
+        applyStrictUiState(StrictUiState.SETUP)
+        updateStrictWarningUI()
+      }
+    }
+
+    // Pomodoro restoration
+    PomodoroManager.restoreFromPrefs(this)
+    val filter = IntentFilter().apply {
+      addAction(PomodoroTimerService.BROADCAST_TICK)
+      addAction(PomodoroTimerService.BROADCAST_PHASE_CHANGE)
+      addAction(PomodoroTimerService.BROADCAST_COMPLETE)
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      registerReceiver(timerReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+    } else {
+      registerReceiver(timerReceiver, filter)
+    }
+    timerReceiverRegistered = true
+
+    if (PomodoroManager.isActive) {
+      // Restore state from manager
+      selectedApps.clear()
+      selectedApps.addAll(PomodoroManager.userSelectedApps)
+      emergencyContacts.indices.forEach { emergencyContacts[it] = PomodoroManager.emergencyContacts[it] }
+      
+      selectTab("pomodoro")
+      showPomActiveScreen()
+
+      if (!PomodoroTimerService.isRunning) {
+        val timerIntent = Intent(this, PomodoroTimerService::class.java).apply {
+          action = PomodoroTimerService.ACTION_START
+        }
+        startService(timerIntent)
+      }
+    } else {
+      showPomSetupScreen()
+      updatePomDurationSelection(selectedDurationMins)
+      updatePomAppSlotsUI()
+      updatePomContactUI()
+    }
+  }
+
+  override fun onPause() {
+    stopwatchRunnable?.let { handler.removeCallbacks(it) }
+    timerRunnable?.let { handler.removeCallbacks(it) }
+    if (timerReceiverRegistered) {
+      unregisterReceiver(timerReceiver)
+      timerReceiverRegistered = false
+    }
+    super.onPause()
+  }
+
+  private fun updateStrictDuration(mins: Int) {
+    strictDurationMins = mins.coerceIn(1, 30)
+    getSharedPreferences("strict", Context.MODE_PRIVATE).edit()
+      .putInt("selected_duration_mins", strictDurationMins)
+      .apply()
+    tvStrictDurationVal?.text = "$strictDurationMins min"
+    seekStrictDuration?.progress = strictDurationMins - 1
+    updateStrictWarningUI()
+  }
+
+  private fun updateStrictWarningUI() {
+    if (!isAccessibilityServiceEnabled()) {
+      tvStrictDesc?.text = "To use Strict Mode:\n1. Tap 'Open Settings' below\n2. Find 'MISS-Minimal v2 Strict Mode'\n3. Toggle it ON\n4. Come back here"
+      btnEnableStrict.text = "Open Settings →"
+    } else if (!checkAllStrictPermissions()) {
+      tvStrictDesc?.text = "Additional permissions required for Strict Mode.\nPlease tap below to set up."
+      btnEnableStrict.text = "COMPLETE SETUP"
+    } else {
+      tvStrictDesc?.text = "Enabling this will silence ALL calls,\nmessages and notifications for $strictDurationMins minutes.\n\nCamera will be disabled.\nNo apps can be opened.\nThis CANNOT be cancelled once started.\n\nOnly enable if fully committed.\nUse at your own risk."
+      btnEnableStrict.text = "ENABLE STRICT MODE"
+    }
+  }
+
+  private fun setupStrictMode() {
+    strictDurationMins = getSharedPreferences("strict", Context.MODE_PRIVATE)
+      .getInt("selected_duration_mins", 15).coerceIn(1, 30)
+    tvStrictDurationVal?.text = "$strictDurationMins min"
+    seekStrictDuration?.progress = strictDurationMins - 1
+
+    btnStrictMinus?.setOnClickListener {
+      vibrateTick()
+      updateStrictDuration(strictDurationMins - 1)
+    }
+    btnStrictPlus?.setOnClickListener {
+      vibrateTick()
+      updateStrictDuration(strictDurationMins + 1)
+    }
+    seekStrictDuration?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+        if (fromUser) {
+          updateStrictDuration(progress + 1)
+        }
+      }
+      override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+    })
+
+    btnEnableStrict.setOnClickListener {
+      vibrateTick()
+      if (!checkAllStrictPermissions()) {
+        getSharedPreferences("strict_nav", MODE_PRIVATE).edit().putString("proceed_target", "strict").apply()
+        startActivity(Intent(this, PermissionOnboardingActivity::class.java))
+      } else {
+        showStrictConfirmDialog()
+      }
+    }
+    btnStartAgain.setOnClickListener {
+      vibrateTick()
+      showStrictConfirmDialog()
+    }
+    btnExitStrict.setOnClickListener {
+      vibrateTick()
+      StrictModeManager.stop(this)
+      applyStrictUiState(StrictUiState.SETUP)
+      val home = Intent(Intent.ACTION_MAIN)
+      home.addCategory(Intent.CATEGORY_HOME)
+      home.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+      startActivity(home)
+      finish()
+    }
+    btnEnableStrict.addPressEffect()
+    btnStartAgain.addPressEffect()
+    btnExitStrict.addPressEffect()
+  }
+
+  private fun showStrictConfirmDialog() {
+    AlertDialog.Builder(this)
+      .setMessage("$strictDurationMins minutes of strict focus.\nNo apps. No notifications.\nAre you ready?")
+      .setPositiveButton("YES") { _, _ -> startStrictMode() }
+      .setNegativeButton("NO", null).show()
+  }
+
+  private fun startStrictMode() {
+    val durationMs = strictDurationMins * 60 * 1000L
+    StrictModeManager.start(this, durationMs)
+    val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    if (nm.isNotificationPolicyAccessGranted) nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
+    strictRemainingSeconds = (durationMs / 1000).toInt()
+    applyStrictUiState(StrictUiState.RUNNING)
+    showStrictCountdown()
+    resumeCountdown()
+  }
+
+  private fun showStrictCountdown() {
+    tvStrictStatus.text = "focus session active"
+    tvStrictCountdown.text = "%02d:%02d".format(strictRemainingSeconds / 60, strictRemainingSeconds % 60)
+  }
+
+  private fun resumeCountdown() {
+    strictCountdownRunnable?.let { handler.removeCallbacks(it) }
+    strictCountdownRunnable = object : Runnable {
+      override fun run() {
+        if (!StrictModeManager.isActive()) {
+          onStrictTimerDone()
+          return
+        }
+        val remaining = StrictModeManager.getRemainingMs() / 1000
+        strictRemainingSeconds = remaining.toInt()
+        if (strictRemainingSeconds <= 0) {
+          onStrictTimerDone()
+          return
+        }
+        val m = strictRemainingSeconds / 60; val s = strictRemainingSeconds % 60
+        tvStrictCountdown.text = "%02d:%02d".format(m, s)
+        handler.postDelayed(this, 1000)
+      }
+    }
+    handler.post(strictCountdownRunnable!!)
+  }
+
+  private fun onStrictTimerDone() {
+    val completedMs = StrictModeManager.initialDurationMs - StrictModeManager.getRemainingMs()
+    val completedMins = (completedMs.toInt() / 60_000).coerceAtLeast(1)
+    
+    StrictModeManager.stop(this)
+    val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    if (nm.isNotificationPolicyAccessGranted) nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+    
+    val pattern = longArrayOf(0, 300, 200, 300, 200, 300)
+    if (Build.VERSION.SDK_INT >= 26) vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+    else @Suppress("DEPRECATION") vibrator.vibrate(pattern, -1)
+
+    tvStrictCountdown.text = "00:00"
+    applyStrictUiState(StrictUiState.COMPLETE)
+    
+    SotActivity.saveModeSession(this, "strict", completedMins)
+  }
+
+  private fun checkAllStrictPermissions(): Boolean {
+    return isAccessibilityServiceEnabled() && isUsageStatsGranted() && Settings.canDrawOverlays(this) && isNotificationPolicyGranted() && isBatteryOptimizationIgnored()
+  }
+
+  private fun isUsageStatsGranted(): Boolean {
+    val appOps = getSystemService(APP_OPS_SERVICE) as android.app.AppOpsManager
+    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        appOps.unsafeCheckOpNoThrow(android.app.AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), packageName)
+    } else {
+        @Suppress("DEPRECATION")
+        appOps.checkOpNoThrow(android.app.AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), packageName)
+    }
+    return mode == android.app.AppOpsManager.MODE_ALLOWED
+  }
+
+  private fun isNotificationPolicyGranted(): Boolean {
+    val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    return nm.isNotificationPolicyAccessGranted
+  }
+
+  private fun isBatteryOptimizationIgnored(): Boolean {
+    val pm = getSystemService(POWER_SERVICE) as android.os.PowerManager
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) pm.isIgnoringBatteryOptimizations(packageName) else true
+  }
+
+  private fun isAccessibilityServiceEnabled(): Boolean {
+    val expected = "$packageName/.StrictModeService"
+    val enabled = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
+    return enabled.contains(expected)
+  }
+
+  private fun setupPomodoro() {
+    pom_btnDur25.setOnClickListener { updatePomDurationSelection(25) }
+    pom_btnDur50.setOnClickListener { updatePomDurationSelection(50) }
+    pom_btnDur75.setOnClickListener { updatePomDurationSelection(75) }
+    pom_btnDur100.setOnClickListener { updatePomDurationSelection(100) }
+
+    pom_slotApp1.setOnClickListener { handlePomAppSlotTap(0) }
+    pom_slotApp2.setOnClickListener { handlePomAppSlotTap(1) }
+    pom_slotApp3.setOnClickListener { handlePomAppSlotTap(2) }
+
+    pom_slotApp1.setOnLongClickListener { selectedApps.getOrNull(0)?.let { selectedApps.removeAt(0); updatePomAppSlotsUI() }; true }
+    pom_slotApp2.setOnLongClickListener { selectedApps.getOrNull(1)?.let { selectedApps.removeAt(1); updatePomAppSlotsUI() }; true }
+    pom_slotApp3.setOnLongClickListener { selectedApps.getOrNull(2)?.let { selectedApps.removeAt(2); updatePomAppSlotsUI() }; true }
+
+    listOf(pom_tvContactName, pom_tvContactName2).forEachIndexed { index, view ->
+      view.setOnClickListener { openPomContactPicker(index) }
+    }
+    listOf(pom_btnRemoveContact, pom_btnRemoveContact2).forEachIndexed { index, view ->
+      view.setOnClickListener { removePomContact(index) }
+    }
+    pom_btnStartPomodoro.setOnClickListener {
+      vibrateTick()
+      if (!checkAllStrictPermissions()) {
+        getSharedPreferences("strict_nav", MODE_PRIVATE).edit().putString("proceed_target", "pomodoro").apply()
+        startActivity(Intent(this, PermissionOnboardingActivity::class.java))
+      } else if (emergencyContacts.any { it != null } &&
+                 ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+        callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+      } else {
+        startPomodoro()
+      }
+    }
+
+    listOf(pom_btnCallContact, pom_btnCallContact2).forEachIndexed { index, view ->
+      view.setOnClickListener {
+        emergencyContacts[index]?.second?.let { num ->
+          performDirectCall(num)
+        }
+      }
+    }
+    pom_btnCancelBreak.setOnClickListener {
+      val intent = Intent(this, PomodoroTimerService::class.java).apply {
+        action = PomodoroTimerService.ACTION_SKIP_BREAK
+      }
+      startService(intent)
+    }
+    
+    val activeSlots = listOf(pom_active_slot1, pom_active_slot2, pom_active_slot3)
+    activeSlots.forEachIndexed { index, slot ->
+      slot.setOnClickListener {
+        val pkg = PomodoroManager.userSelectedApps.getOrNull(index) ?: selectedApps.getOrNull(index)
+        if (pkg != null) {
+          try {
+            PomodoroManager.lastLaunchTime = android.os.SystemClock.uptimeMillis()
+            PomodoroManager.lastLaunchedAppPkg = pkg
+            val intent = packageManager.getLaunchIntentForPackage(pkg)?.apply {
+              addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+            }
+            if (intent != null) {
+              startActivity(intent)
+            } else {
+              Toast.makeText(this, "Cannot launch app", Toast.LENGTH_SHORT).show()
+            }
+          } catch (e: Exception) {
+            Toast.makeText(this, "Launch failed: ${e.message}", Toast.LENGTH_SHORT).show()
+          }
+        }
+      }
+    }
+    
+    listOf(pom_btnDur25, pom_btnDur50, pom_btnDur75, pom_btnDur100, 
+           pom_slotApp1, pom_slotApp2, pom_slotApp3, pom_btnStartPomodoro,
+           pom_tvContactName, pom_tvContactName2, pom_btnRemoveContact, pom_btnRemoveContact2,
+           pom_btnCallContact, pom_btnCallContact2, pom_btnCancelBreak,
+           pom_active_slot1, pom_active_slot2, pom_active_slot3).forEach { it.addPressEffect() }
+  }
+
+  private fun updatePomDurationSelection(mins: Int) {
+    selectedDurationMins = mins
+    val buttons = listOf(pom_btnDur25, pom_btnDur50, pom_btnDur75, pom_btnDur100)
+    val durations = listOf(25, 50, 75, 100)
+    buttons.forEachIndexed { index, btn ->
+      val isSelected = durations[index] == mins
+      if (isSelected) {
+        btn.setBackgroundResource(R.drawable.bg_pill)
+        btn.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
+        btn.setTextColor(android.graphics.Color.BLACK)
+      } else {
+        btn.setBackgroundResource(R.drawable.btn_border)
+        btn.backgroundTintList = null
+        btn.setTextColor(android.graphics.Color.parseColor("#8E8E93"))
+      }
+    }
+  }
+
+  private fun handlePomAppSlotTap(index: Int) {
+    if (index < selectedApps.size) {
+      Toast.makeText(this, "Long press to remove app", Toast.LENGTH_SHORT).show()
+    } else {
+      val intent = Intent(this, AppPickerActivity::class.java)
+      intent.putExtra("pomodoro_mode", true)
+      startActivityForResult(intent, 2001)
+    }
+  }
+
+  private fun updatePomAppSlotsUI() {
+    fun style(slot: TextView, pkg: String?) {
+      if (pkg != null) {
+        val label = try {
+          val info = packageManager.getApplicationInfo(pkg, 0)
+          packageManager.getApplicationLabel(info).toString().take(8)
+        } catch (_: Exception) {
+          pkg.substringAfterLast(".").take(8)
+        }
+        slot.text = label
+        slot.setBackgroundResource(R.drawable.bg_pill)
+        slot.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#222222"))
+        slot.setTextColor(android.graphics.Color.WHITE)
+      } else {
+        slot.text = "+ add"
+        slot.setBackgroundResource(R.drawable.btn_border)
+        slot.backgroundTintList = null
+        slot.setTextColor(android.graphics.Color.parseColor("#666666"))
+      }
+    }
+    style(pom_slotApp1, selectedApps.getOrNull(0))
+    style(pom_slotApp2, selectedApps.getOrNull(1))
+    style(pom_slotApp3, selectedApps.getOrNull(2))
+  }
+
+  private fun openPomContactPicker(index: Int) {
+    pendingContactIndex = index
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+      callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+      return
+    }
+    try {
+      pomContactPicker.launch(
+        Intent(Intent.ACTION_PICK).setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE)
+      )
+    } catch (_: ActivityNotFoundException) {
+      Toast.makeText(this, "No contact picker available", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  private fun removePomContact(index: Int) {
+    emergencyContacts[index] = null
+    updatePomContactUI()
+  }
+
+  private fun updatePomContactUI() {
+    val names = listOf(pom_tvContactName, pom_tvContactName2)
+    val removeButtons = listOf(pom_btnRemoveContact, pom_btnRemoveContact2)
+    names.forEachIndexed { index, view ->
+      val contact = emergencyContacts[index]
+      view.text = contact?.first ?: "+ select contact"
+      view.setTextColor(if (contact == null) android.graphics.Color.parseColor("#666666") else android.graphics.Color.WHITE)
+      removeButtons[index].visibility = if (contact == null) View.GONE else View.VISIBLE
+    }
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    if (resultCode == RESULT_OK && data != null) {
+      if (requestCode == 2001) {
+        val pkg = data.getStringExtra("package_name") ?: return
+        if (selectedApps.size < 3 && !selectedApps.contains(pkg)) {
+          selectedApps.add(pkg)
+          updatePomAppSlotsUI()
+        }
+      }
+    }
+  }
+
+  private fun handlePomContactResult(uri: Uri) {
+    try {
+      val projection = arrayOf(
+        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+        ContactsContract.CommonDataKinds.Phone.NUMBER
+      )
+      contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+        if (!cursor.moveToFirst()) {
+          Toast.makeText(this, "Selected contact has no phone number", Toast.LENGTH_SHORT).show()
+          return@use
+        }
+        val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+        val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+        val name = if (nameIndex >= 0) cursor.getString(nameIndex)?.trim()?.takeIf { it.isNotEmpty() } else null
+        val number = if (numberIndex >= 0) cursor.getString(numberIndex)?.trim()?.takeIf { it.isNotEmpty() } else null
+        val sanitizedNumber = number?.let(PhoneNumberUtils::stripSeparators)?.takeIf { it.isNotEmpty() }
+
+        if (sanitizedNumber != null) {
+          emergencyContacts[pendingContactIndex] = (name ?: sanitizedNumber) to sanitizedNumber
+          if (portraitUiInitialized) updatePomContactUI()
+        } else {
+          Toast.makeText(this, "Selected contact has no phone number", Toast.LENGTH_SHORT).show()
+        }
+      } ?: Toast.makeText(this, "Unable to read selected contact", Toast.LENGTH_SHORT).show()
+    } catch (e: Exception) {
+      Toast.makeText(this, "Error reading contact: ${e.message ?: "unknown error"}", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  private fun startPomodoro() {
+    // Keep screen on
+    window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    
+    val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    if (nm.isNotificationPolicyAccessGranted) {
+      nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
+    }
+
+    PomodoroManager.start(
+        durationMinutes = selectedDurationMins,
+        allowedApps = selectedApps,
+        contacts = emergencyContacts,
+        context = this
+    )
+    
+    // Start blocker for work phase
+    TopBarBlockerService.start(this)
+    StrictModeService.instance?.startBlocking()
+    
+    val intent = Intent(this, PomodoroTimerService::class.java)
+    intent.action = PomodoroTimerService.ACTION_START
+    intent.putExtra(PomodoroTimerService.EXTRA_DURATION, selectedDurationMins * 60)
+    startService(intent)
+    showPomActiveScreen()
+    updatePomTimerUI(selectedDurationMins * 60, true)
+  }
+
+  private fun performDirectCall(num: String) {
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+      makeDirectCall(num)
+    } else {
+      pendingCallNumber = num
+      callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+    }
+  }
+
+  private fun makeDirectCall(num: String) {
+    try {
+      val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:${Uri.encode(num)}")).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+      }
+      startActivity(intent)
+    } catch (e: Exception) {
+      Toast.makeText(this, "Direct call failed: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  private fun endPomodoroSession() {
+    applyPomodoroImmersiveMode(false)
+    val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    if (nm.isNotificationPolicyAccessGranted) {
+      nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+    }
+    PomodoroManager.stop(this)
+    TopBarBlockerService.stop(this) // stop blocker
+    StrictModeService.instance?.stopBlocking()
+    val intent = Intent(this, PomodoroTimerService::class.java)
+    stopService(intent)
+    showPomSetupScreen()
+  }
+
+  private fun onPomodoroCompleted() {
+    applyPomodoroImmersiveMode(false)
+    vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 500, 200, 500), -1))
+    AlertDialog.Builder(this)
+      .setTitle("Session Complete")
+      .setMessage("Well done! Do you want to start another session or finish?")
+      .setCancelable(false)
+      .setPositiveButton("CONTINUE") { _, _ -> showPomSetupScreen(); PomodoroManager.stop(this) }
+      .setNegativeButton("FINISH") { _, _ -> endPomodoroSession() }
+      .show()
+  }
+
+  private fun showPomSetupScreen() {
+    applyPomodoroImmersiveMode(false)
+    scrollPomodoroSetup.visibility = View.VISIBLE
+    pom_layoutSetup.visibility = View.VISIBLE
+    pom_layoutActive.visibility = View.GONE
+    findViewById<View>(R.id.tabBar).visibility = View.VISIBLE
+    tabIndicator.visibility = View.VISIBLE
+  }
+
+  private fun showPomActiveScreen() {
+    applyPomodoroImmersiveMode(true)
+    scrollPomodoroSetup.visibility = View.GONE
+    pom_layoutSetup.visibility = View.GONE
+    pom_layoutActive.visibility = View.VISIBLE
+    findViewById<View>(R.id.tabBar).visibility = View.GONE
+    tabIndicator.visibility = View.GONE
+    pom_tvSessionCount.text = if (PomodoroManager.totalSessions > 1) {
+      "session ${PomodoroManager.currentSession} of ${PomodoroManager.totalSessions}"
+    } else {
+      "session ${PomodoroManager.currentSession}"
+    }
+    
+    emergencyContacts.indices.forEach { emergencyContacts[it] = PomodoroManager.emergencyContacts[it] }
+    listOf(pom_btnCallContact, pom_btnCallContact2).forEachIndexed { index, view ->
+        val contact = emergencyContacts[index]
+        view.visibility = if (contact == null) View.GONE else View.VISIBLE
+        (view as TextView).text = contact?.let { "CALL ${it.first}" } ?: ""
+    }
+    
+    // Populate active app slots from PomodoroManager.userSelectedApps
+    // NOT from local selectedApps — because selectedApps is empty after activity recreate
+    val appsToShow = if (PomodoroManager.userSelectedApps.isNotEmpty()) {
+        PomodoroManager.userSelectedApps
+    } else {
+        selectedApps
+    }
+    
+    val activeSlots = listOf(pom_active_slot1, pom_active_slot2, pom_active_slot3)
+    activeSlots.forEach { it.visibility = View.GONE }
+    
+    appsToShow.forEachIndexed { index, pkg ->
+        if (index < activeSlots.size) {
+            val slot = activeSlots[index]
+            slot.visibility = View.VISIBLE
+            val label = try {
+                val info = packageManager.getApplicationInfo(pkg, 0)
+                packageManager.getApplicationLabel(info).toString()
+            } catch (e: Exception) {
+                pkg.substringAfterLast(".").take(8)
+            }
+            slot.text = label
+            slot.setOnClickListener {
+                try {
+                    PomodoroManager.lastLaunchTime = android.os.SystemClock.uptimeMillis()
+                    PomodoroManager.lastLaunchedAppPkg = pkg
+                    val launchIntent = packageManager.getLaunchIntentForPackage(pkg)?.apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                    }
+                    if (launchIntent != null) {
+                        startActivity(launchIntent)
+                    } else {
+                        Toast.makeText(this, "Cannot launch $label", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Launch error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+  }
+
+  private fun updatePomTimerUI(remaining: Int, isWork: Boolean) {
+    val mins = remaining / 60
+    val secs = remaining % 60
+    pom_tvCountdown.text = "%02d:%02d".format(mins, secs)
+    if (isWork) {
+      pom_tvPhaseLabel.text = if (PomodoroManager.totalSessions > 1) {
+        "WORK SESSION ${PomodoroManager.currentSession} OF ${PomodoroManager.totalSessions}"
+      } else {
+        "WORK PHASE"
+      }
+      pom_tvPhaseLabel.setTextColor(android.graphics.Color.WHITE)
+      pom_btnCancelBreak.visibility = View.GONE
+    } else {
+      pom_tvPhaseLabel.text = "BREAK TIME (5 MIN)"
+      pom_tvPhaseLabel.setTextColor(android.graphics.Color.parseColor("#4CAF50"))
+      pom_btnCancelBreak.visibility = View.VISIBLE
+      if (pom_btnCancelBreak is TextView) {
+        (pom_btnCancelBreak as TextView).text = "SKIP BREAK"
+      }
+    }
+  }
+
+  private fun onPomPhaseChanged(isWork: Boolean, session: Int) {
+    if (Build.VERSION.SDK_INT >= 29) {
+      vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK))
+    } else {
+      @Suppress("DEPRECATION")
+      vibrator.vibrate(100)
+    }
+    pom_tvSessionCount.text = if (PomodoroManager.totalSessions > 1) {
+      "session $session of ${PomodoroManager.totalSessions}"
+    } else {
+      "session $session"
+    }
+    
+    // Block during work, unblock during break
+    if (isWork) {
+      applyPomodoroImmersiveMode(true)
+      TopBarBlockerService.start(this)
+    } else {
+      applyPomodoroImmersiveMode(false)
+      TopBarBlockerService.stop(this)
+    }
+  }
+
+  private fun applyPomodoroImmersiveMode(enable: Boolean) {
+    if (enable) {
+      @Suppress("DEPRECATION")
+      window.decorView.systemUiVisibility = (
+          View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+          or View.SYSTEM_UI_FLAG_FULLSCREEN
+          or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+          or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+          or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+          or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+      )
+    } else {
+      @Suppress("DEPRECATION")
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+    }
+  }
+
+  override fun onWindowFocusChanged(hasFocus: Boolean) {
+    super.onWindowFocusChanged(hasFocus)
+    if (PomodoroManager.isWorkSessionActive()) {
+      if (!hasFocus) {
+        val timeSinceLaunch = android.os.SystemClock.uptimeMillis() - PomodoroManager.lastLaunchTime
+        if (timeSinceLaunch >= 2500) {
+          collapseNotificationShade()
+        }
+      } else {
+        applyPomodoroImmersiveMode(true)
+      }
+    }
+  }
+
+  private fun collapseNotificationShade() {
+    val doCollapse = Runnable {
+      try {
+        @Suppress("DEPRECATION")
+        sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+      } catch (_: Throwable) {}
+      try {
+        val statusBar = getSystemService("statusbar")
+        val method = statusBar?.javaClass?.getMethod("collapsePanels")
+        method?.isAccessible = true
+        method?.invoke(statusBar)
+      } catch (_: Throwable) {}
+      try {
+        StrictModeService.instance?.dismissNotificationShade()
+      } catch (_: Throwable) {}
+    }
+    doCollapse.run()
+    handler.postDelayed(doCollapse, 150)
+    handler.postDelayed(doCollapse, 350)
+  }
+
+  override fun onBackPressed() {
+    if (StrictModeManager.isActive() || (PomodoroManager.isActive && PomodoroManager.isWorkPhase)) return
+    super.onBackPressed()
+  }
+
+  override fun onDestroy() {
+    handler.removeCallbacksAndMessages(null)
+    super.onDestroy()
+  }
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    outState.putStringArrayList("pom_selected_apps", ArrayList(selectedApps))
+    outState.putInt("pom_selected_duration", selectedDurationMins)
+    emergencyContacts.forEachIndexed { index, contact ->
+      outState.putString("pom_contact_${index}_name", contact?.first)
+      outState.putString("pom_contact_${index}_number", contact?.second)
+    }
+    outState.putInt("pom_pending_contact", pendingContactIndex)
+    super.onSaveInstanceState(outState)
+  }
+
+  private fun vibrateTick() {
+    if (Build.VERSION.SDK_INT >= 29) {
+      vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK))
+    } else {
+      @Suppress("DEPRECATION")
+      vibrator.vibrate(10)
+    }
+  }
+
+  private fun View.addPressEffect() {
+    setOnTouchListener { v, event ->
+      when (event.action) {
+        android.view.MotionEvent.ACTION_DOWN -> {
+          v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(100).start()
+        }
+        android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+          v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(150).start()
+        }
+      }
+      false
+    }
+  }
+}

@@ -1,0 +1,70 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:padding="32dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/tvSotValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0m"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:tag="fixed_size"
+            android:fontFamily="@font/plus_jakarta_sans_light"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvSotDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="screen time today"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            android:fontFamily="@font/plus_jakarta_sans"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:layout_marginBottom="32dp"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/layoutAppUsage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+        </ScrollView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="48dp"/>
+    </LinearLayout>
+
+    <TextView android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BACK"
+        android:textColor="#444444"
+        android:textSize="10sp"
+        android:tag="fixed_size"
+        android:fontFamily="@font/plus_jakarta_sans"
+        android:layout_gravity="bottom|center_horizontal"
+        android:padding="16dp"/>
+
+</FrameLayout>

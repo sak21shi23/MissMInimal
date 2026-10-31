@@ -1,1 +1,241 @@
-‣䥍卓䴠湩浩污਍਍⨪⁁楤瑳慲瑣潩⵮牦敥䄠摮潲摩氠畡据敨⹲吠硥⁴湯祬‮潎椠潣獮‮畐敲映捯獵⨮പഊ嬊嬡楌散獮㩥䴠呉⡝瑨灴㩳⼯浩⹧桳敩摬⹳潩戯摡敧䰯捩湥敳䴭呉眭楨整献杶崩䰨䍉久䕓ഩ嬊嬡汐瑡潦浲⡝瑨灴㩳⼯浩⹧桳敩摬⹳潩戯摡敧瀯慬晴牯⵭湁牤楯╤〲⸸┰䈲戭慬正献杶崩栨瑴獰⼺搯癥汥灯牥愮摮潲摩挮浯ഩ嬊嬡敖獲潩嵮栨瑴獰⼺椯杭献楨汥獤椮⽯慢杤⽥敶獲潩⵮⸲ⴰ桷瑩⥥⡝瑨灴㩳⼯楧桴扵挮浯猯歡ㄲ桳㉩⼳楍獳䥍楮慭⽬敲敬獡獥ഩഊⴊⴭ਍਍⌣圠慨⁴獩䴠卉⁓楍楮慭㽬਍਍䥍卓䴠湩浩污椠⁳⁡業楮慭楬瑳䄠摮潲摩栠浯⁥捳敲湥氠畡据敨⁲桴瑡猠牴灩⁳潹牵瀠潨敮搠睯⁮潴椠獴戠牡⁥獥敳瑮慩獬‮潎愠灰椠潣獮‮潎挠汯牯畦⁬䥕‮潎搠獩牴捡楴湯⹳䨠獵⁴整瑸钀挠敬湡‬汢捡⁫湡⁤桷瑩⹥਍਍桔⁥摩慥椠⁳楳灭敬›潭瑳漠⁦桴⁥楴敭礠畯甠汮捯⁫潹牵瀠潨敮‬潹⁵潤❮⁴捡畴污祬渠敥⁤瑩‮桔⁥潭敭瑮礠畯猠敥愠挠汯牯畦⁬牧摩漠⁦捩湯ⱳ礠畯⁲牢楡⁮瑳牡獴眠湡敤楲杮‮䥍卓䴠湩浩污爠浥癯獥琠慨⁴牴杩敧⁲湥楴敲祬‮楆敶愠灰⁳慭⁸湯琠敨栠浯⁥捳敲湥‬楬瑳摥愠⁳汰楡⁮整瑸‮癅牥瑹楨杮攠獬⁥瑳祡⁳湩琠敨搠慲敷⁲胢ₔ畯⁴景猠杩瑨‬畯⁴景洠湩⹤਍਍ⴭഭഊ⌊‣桗瑡猧丠睥椠⁮㉶〮਍਍⌣‣敒敤楳湧摥唠⁉ 塕਍‭灕牧摡摥琠灹杯慲桰⁹潴⨠倪畬⁳慊慫瑲⁡慓獮⨪映牯愠挠敬湡牥‬潭敤湲攠楤潴楲污愠獥桴瑥捩਍‭潂瑴浯渠癡杩瑡潩⁮慢⁲敲敤楳湧摥眠瑩⁨⁡畳瑢敬瀠汩⵬桳灡摥挠牡⁤潣瑮楡敮൲ⴊ䘠捯獵䴠摯⁥慴⁢湩楤慣潴⁲楷桴猠潭瑯⁨湡浩瑡摥甠摮牥楬敮਍‭敒敤楳湧摥䔠䥘⁔畢瑴湯眠瑩⁨慢杤⁥瑳汹湩൧ⴊ䔠桮湡散⁤慢正牧畯摮⁳潦⁲牤睡牥椠整獭愠摮椠瑮牥捡楴敶挠湯牴汯൳ⴊ䠠杩⵨潣瑮慲瑳挠潬正搠獩汰祡⠠㔸灳 湡⁤慭獳癩⁥畦汬捳敲湥漠敶汲祡⠠㐱猰⥰਍‭敒楦敮⁤慰摤湩⁧湡⁤敶瑲捩污愠楬湧敭瑮愠牣獯⁳污⁬捳敲湥猠穩獥਍਍⌣‣敎⁷潂瑴浯䈠牡钀㌠吠杯汧獥਍桔⁥潨敭猠牣敥⁮潢瑴浯戠牡映慥畴敲⁳桴敲⁥浩敭楤瑡⁥捡楴湯㩳਍‭⨪但啃⩓‪胢ₔ灏湥⁳潆畣⁳潍敤⠠瑓灯慷捴ⱨ吠浩牥‬瑓楲瑣䴠摯ⱥ倠浯摯牯⥯਍‭⨪体⩔‪胢ₔ灏湥⁳捓敲湥传⁮楔敭琠慲正牥⠠潴慤❹⁳灡汰捩瑡潩⁮獵条⁥牢慥摫睯⥮਍‭⨪䥔䕍⨪钀传数獮映汵獬牣敥⁮浩敭獲癩⁥汣捯⁫癯牥慬⁹琨灡愠祮桷牥⁥潴搠獩業獳ഩഊ⌊⌣匠呏钀匠牣敥⁮湏吠浩൥䐊摥捩瑡摥猠牣敥⁮牴捡楫杮愠瑣癩⁥敤楶散愠摮愠灰楬慣楴湯甠慳敧琠摯祡ഺⴊ删慥⵬楴敭甠慳敧愠杧敲慧楴湯瘠慩䄠摮潲摩猧怠獕条卥慴獴慍慮敧恲਍‭楄敲瑣猠浵慭祲漠⁮桴⁥潨敭猠牣敥⁮湩栠畯獲愠摮洠湩瑵獥਍‭敐⵲灡⁰牢慥摫睯⁮潳瑲摥戠⁹捳敲湥琠浩⁥畤慲楴湯਍਍⌣‣潆畣⁳潍敤钀㐠倠睯牥畦⁬潔汯൳䘊畯⁲楤瑳湩瑣映捯獵甠楴楬楴獥琠⁯敨灬爠捥慬浩愠瑴湥楴湯ഺഊㄊ‮⨪瑓灯慷捴⩨പ †‭汃慥⁮瑓牡⁴ 慐獵⁥ 敒畳敭⼠匠潴⁰潷歲汦睯਍†ⴠ䘠慬⁧敦瑡牵⁥潴爠捥牯⁤慬⁰楴敭瑳浡獰搠牵湩⁧捡楴敶猠獥楳湯൳ †‭捓潲汬扡敬氠灡栠獩潴祲਍਍⸲⨠吪浩牥⨪਍†ⴠ䤠瑮極楴敶䠠⁈›䵍㨠匠⁓楰正牥൳ †‭敐獲獩整瑮挠畯瑮潤湷眠瑩⁨楶牢瑡潩⁮湯挠浯汰瑥潩൮ഊ㌊‮⨪瑓楲瑣䴠摯⩥പ †‭㔲洭湩瑵⁥楤瑳慲瑣潩⵮牦敥氠捯摫睯⁮敳獳潩൮ †‭畁潴慭楴慣汬⁹捡楴慶整⁳潄丠瑯䐠獩畴扲⠠乄⥄਍†ⴠ吠浥潰慲祲挠浡牥⁡潬正瘠慩䐠癥捩⁥摁業⁮偁൉ †‭潎楴楦慣楴湯愠摮猠楷数椠瑮牥敦敲据⁥汢捯楫杮਍†ⴠ唠楮瑮牥畲瑰摥映汵獬牣敥⁮潣湵摴睯൮ഊ㐊‮⨪潐潭潤潲䴠摯⩥പ †‭畃瑳浯猠獥楳湯搠牵瑡潩獮›㔲⼠㔠‰ 㔷⼠ㄠ〰洠湩瑵獥਍†ⴠ唠⁰潴㌠挠湯楦畧慲汢⁥污潬敷⁤灡獰搠牵湩⁧潷歲瀠慨敳਍†ⴠ䔠敭杲湥祣挠湯慴瑣焠極正搠慩⁬牦浯琠敨戠敲歡猠牣敥൮ †‭楄瑳湩瑣眠牯⁫湡⁤敲瑳瀠慨敳搠瑥捥楴湯眠瑩⁨敧瑮敬栠灡楴⁣污牥獴਍਍⌣‣畑捩⁫敓瑴湩獧倠湡汥਍⁁楬桧睴楥桧⁴ⴹ潴杧敬挠湯牴汯挠湥整⁲捡散獳扩敬瘠慩猠楷数ഺⴊ⨠圪䙩⩩‪胢ₔ畑捩⁫潴杧敬瀠湡汥☠搠物捥⁴敳瑴湩獧愠捣獥൳ⴊ⨠䐪瑡⩡‪胢ₔ湉整湲瑥挠湯敮瑣癩瑩⁹桳牯捴瑵਍‭⨪求敵潴瑯⩨‪胢ₔ祓瑳浥䈠畬瑥潯桴挠湯牴汯൳ⴊ⨠䘪慬桳楬桧⩴‪胢ₔ楄敲瑣挠浡牥⁡潴捲⁨潴杧敬਍‭⨪乄⩄‪胢ₔ湉瑳湡⁴潄丠瑯䐠獩畴扲洠摯൥ⴊ⨠刪瑯瑡⩥‪胢ₔ畁潴爭瑯瑡潩⁮潴杧敬਍‭⨪潈獴潰⩴‪胢ₔ敔桴牥湩⁧潣瑮潲獬਍‭⨪潌慣楴湯⨪钀䰠捯瑡潩⁮敳癲捩獥猠潨瑲畣൴ⴊ⨠䄪物汰湡⩥‪胢ₔ敎睴牯⁫慰敮⁬潴杧敬਍‭⨪潓湵⁤…楄灳慬⩹‪胢ₔ潖畬敭洠摯⁥丨牯慭⁬ 楖牢瑡⁥ 楓敬瑮Ⱙ瘠汯浵⁥汳摩牥‬畡潴戭楲桧湴獥⁳潴杧敬‬湡⁤牢杩瑨敮獳猠楬敤൲ഊ⌊⌣䰠畡据敨⁲敓瑴湩獧਍‭⨪祔潰牧灡票⨺‪汇扯污映湯⁴楳敺愠橤獵浴湥⁴㠨胢㊓猰⥰眠瑩⁨敲污琭浩⁥䥕猠慣楬杮਍‭⨪祓瑳浥䌠湯牴汯㩳⨪儠極正洠湡条浥湥⁴景䐠䑎‬汦獡汨杩瑨‬潶畬敭‬湡⁤牢杩瑨敮獳਍‭⨪慓敦祴☠吠慲獮慰敲据㩹⨪䔠扭摥敤⁤灯湥猠畯捲⁥整浲ⱳ瀠楲慶祣挠浯業浴湥ⱴ愠摮瀠牥業獳潩⁮硥汰湡瑡潩൮ഊⴊⴭ਍਍⌣䄠汬䘠慥畴敲൳ഊ⌊⌣䠠浯⁥捓敲湥਍‭楈桧挭湯牴獡⁴楴敭愠摮搠瑡⁥牰獥湥慴楴湯਍‭祄慮業⁣慤汩⁹捓敲湥传⁮楔敭挠畯瑮牥਍‭‵牰浩牡⁹汳瑯㩳倠潨敮☠䌠浡牥⁡楦數Ɽ㌠甠敳⵲畣瑳浯穩扡敬਍‭潌杮瀭敲獳愠祮猠潬⁴潴愠獳杩⁮牯挠敬牡愠灰൳ⴊ䜠獥畴敲渠癡杩瑡潩㩮਍†‭⨪睓灩⁥灕⨺‪灏湥琠硥⁴灁⁰牄睡牥਍†‭⨪睓灩⁥潄湷⨺‪灏湥儠極正匠瑥楴杮൳ ⴠ⨠䔪䥘㩔⨪传数⁮祳瑳浥氠畡据敨⁲敳敬瑣牯਍਍⌣‣灁⁰牄睡牥਍‭慆瑳‬污桰扡瑥捩污瀠慬湩琭硥⁴楬瑳漠⁦湩瑳污敬⁤灡汰捩瑡潩獮਍‭湉瑳湡⁴湩牣浥湥慴⁬敳牡档਍‭潌杮瀭敲獳挠湯整瑸慵⁬灯楴湯㩳䄠摤琠⁯潈敭‬敓⁴楔敭䰠浩瑩‬敒慮敭‬灁⁰湉潦‬湕湩瑳污൬ഊ⌊⌣䄠灰楬慣楴湯吠浩⁥楌業獴਍‭敓⁴数⵲灡⁰慤汩⁹牯猠獥楳湯氠浩瑩⁳ㄨⱭ㔠Ɑㄠ洰‬㔱Ɑ漠⁲畣瑳浯ഩⴊ䜠慲散畦汬⁹敲楤敲瑣⁳獵牥戠捡⁫潴氠畡据敨⁲湯散氠浩瑩攠灸物獥਍਍ⴭഭഊ⌊‣捓敲湥桳瑯൳ഊ㰊慴汢⁥污杩㵮挢湥整≲ാ 㰠牴ാ †㰠桴䠾浯⁥捓敲湥⼼桴ാ †㰠桴䄾灰䐠慲敷㱲琯㹨਍††琼㹨畑捩⁫敓瑴湩獧⼼桴ാ †㰠桴吾浩牥⼼桴ാ 㰠琯㹲਍†琼㹲਍††琼㹤椼杭猠捲∽瑨灴㩳⼯敲⹳汣畯楤慮祲挮浯搯異瑩硳桵椯慭敧甯汰慯⽤ㅶ㜷㠶ㄸ㜳⼲捓敲湥桳瑯㉟㈰〶㈴弲㌲㔳㤴機甴〸⹮灪≧眠摩桴∽㠱∰㸯⼼摴ാ †㰠摴㰾浩⁧牳㵣栢瑴獰⼺爯獥挮潬摵湩牡⹹潣⽭灤極獴畸⽨浩条⽥灵潬摡瘯㜱㘷㠸㌱㔷匯牣敥獮潨彴〲㘲㐰㈲㉟㌳㈶張扲捸穥樮杰•楷瑤㵨ㄢ〸⼢㰾琯㹤਍††琼㹤椼杭猠捲∽瑨灴㩳⼯敲⹳汣畯楤慮祲挮浯搯異瑩硳桵椯慭敧甯汰慯⽤ㅶ㜷㠶ㄸ㜳⼳捓敲湥桳瑯㉟㈰〶㈴弲㌲㘳ㄲ束慮癥⹷灪≧眠摩桴∽㠱∰㸯⼼摴ാ †㰠摴㰾浩⁧牳㵣栢瑴獰⼺爯獥挮潬摵湩牡⹹潣⽭灤極獴畸⽨浩条⽥灵潬摡瘯㜱㘷㠸㌱㈷匯牣敥獮潨彴〲㘲㐰㈲㉟㌳ㄶ弲㥸で汣樮杰•楷瑤㵨ㄢ〸⼢㰾琯㹤਍†⼼牴ാഊ 㰠牴ാ †㰠桴匾牴捩⁴潍敤⼼桴ാ †㰠桴倾浯摯牯⁯潍敤⼼桴ാ †㰠桴匾潴睰瑡档⼼桴ാ †㰠桴吾浩㱥琯㹨਍†⼼牴ാ 㰠牴ാ †㰠摴㰾浩⁧牳㵣栢瑴獰⼺爯獥挮潬摵湩牡⹹潣⽭灤極獴畸⽨浩条⽥灵潬摡瘯㜱㔷㘱㠲㠵匯剔䍉彔位䕄慟捵猴⹨灪≧眠摩桴∽㠱∰㸯⼼摴ാ †㰠摴㰾浩⁧牳㵣栢瑴獰⼺爯獥挮潬摵湩牡⹹潣⽭灤極獴畸⽨浩条⽥灵潬摡瘯㜱㘷㠸㌱㐷匯牣敥獮潨彴〲㘲㐰㈲㉟㌳ㄶ弴浫睸敲樮杰•楷瑤㵨ㄢ〸⼢㰾琯㹤਍††琼㹤椼杭猠捲∽瑨灴㩳⼯敲⹳汣畯楤慮祲挮浯搯異瑩硳桵椯慭敧甯汰慯⽤ㅶ㜷㠶ㄸ㜳⼲捓敲湥桳瑯㉟㈰〶㈴弲㌲㘳〱慟湡㑮⹡灪≧眠摩桴∽㠱∰㸯⼼摴ാ †㰠摴㰾浩⁧牳㵣栢瑴獰⼺爯獥挮潬摵湩牡⹹潣⽭灤極獴畸⽨浩条⽥灵潬摡瘯㜱㘷㠸㌱㈷匯牣敥獮潨彴〲㘲㐰㈲㉟㌳〶弲睩煴攴樮杰•楷瑤㵨ㄢ〸⼢㰾琯㹤਍†⼼牴ാ㰊琯扡敬ാഊⴊⴭ਍਍⌣䜠瑥楴杮匠慴瑲摥਍਍⌣‣灏楴湯ㄠ钀䤠獮慴汬倠敲戭極瑬䄠䭐਍਍⸱䠠慥⁤癯牥琠⁯⩛刪汥慥敳⩳崪栨瑴獰⼺术瑩畨⹢潣⽭慳㉫猱楨㌲䴯獩䵳湉浩污爯汥慥敳⥳മ㈊‮潄湷潬摡琠敨氠瑡獥⁴䵠卉ⵓ楍楮慭⹬灡恫മ㌊‮灏湥琠敨䄠䭐漠⁮潹牵搠癥捩ⱥ攠慮汢⁥湩瑳污慬楴湯映潲⁭湵湫睯⁮潳牵散⁳晩瀠潲灭整Ɽ愠摮椠獮慴汬മ㐊‮牐獥⁳潹牵䠠浯⁥畢瑴湯‬档潯敳⨠䴪卉⁓楍楮慭⩬Ⱚ愠摮猠汥捥⁴⨪汁慷獹⨪മഊ㸊⨠个瑯㩥⨪䤠⁦潇杯敬倠慬⁹牐瑯捥⁴慷湲⁳条楡獮⁴湩瑳污楬杮猠慴摮污湯⁥楳敤潬摡摥䄠䭐㩳਍‾⸱传数⁮潇杯敬倠慬⁹瑓牯⁥蛢ₒ牐景汩⁥捉湯銆⨠倪慬⁹牐瑯捥⩴⸪਍‾⸲传数⁮敓瑴湩獧⠠潴⁰楲桧⁴敧牡⸩਍‾⸳吠浥潰慲楲祬瀠畡敳⨠匪慣⁮灡獰眠瑩⁨汐祡倠潲整瑣⨪搠牵湩⁧慭畮污椠獮慴汬瑡潩⹮਍਍ⴭഭഊ⌊⌣传瑰潩⁮′胢ₔ畂汩⁤牦浯匠畯捲൥ഊ⨊倪敲敲畱獩瑩獥⨺പⴊ䄠摮潲摩匠畴楤⁯杉慵慮⼠䰠摡批杵漠⁲敮敷൲ⴊ䄠摮潲摩匠䭄⠠偁⁉敌敶⁬㐳ഩⴊ䨠䭄ㄠ⬷਍਍恠扠獡൨⌊䌠潬敮琠敨爠灥獯瑩牯൹朊瑩挠潬敮栠瑴獰⼺术瑩畨⹢潣⽭慳㉫猱楨㌲䴯獩䵳湉浩污朮瑩਍਍‣湅整⁲桴⁥牰橯捥⁴楤敲瑣牯൹挊⁤楍獳䥍楮慭൬怊恠਍਍灏湥琠敨瀠潲敪瑣椠⁮湁牤楯⁤瑓摵潩‬污潬⁷片摡敬匠湹⁣潴映湩獩ⱨ挠湯敮瑣愠⁮湁牤楯⁤敤楶散⠠湁牤楯⁤⸸⬰⼠䄠䥐㈠⬶Ⱙ愠摮挠楬正⨠刪湵뚖⨪മഊⴊⴭ਍਍⌣倠牥業獳潩獮传敶癲敩൷ഊ簊倠牥業獳潩⁮⁼畐灲獯⁥ർ簊ⴭ簭ⴭ簭਍⁼兠䕕奒䅟䱌偟䍁䅋䕇恓簠䔠畮敭慲整椠獮慴汬摥愠灰楬慣楴湯⁳潦⁲桴⁥整瑸搠慲敷⁲ർ簊怠奓呓䵅䅟䕌呒坟义佄恗簠䬠敥⁰潦畣⁳湡⁤汢捯⁫湩整牲灵楴湯⁳畤楲杮猠牴捩⁴敳獳潩獮簠਍⁼䅠䍃卅当低䥔䥆䅃䥔乏偟䱏䍉恙簠䔠慮汢⁥潄丠瑯䐠獩畴扲搠牵湩⁧潦畣⁳敳獳潩獮簠਍⁼䉠义彄䍁䕃卓䉉䱉呉彙䕓噒䍉恅簠䤠瑮牥散瑰搠獩牴捡楴湯朠獥畴敲⁳桷汩⁥慬湵档牥椠⁳捡楴敶簠਍⁼䉠义彄䕄䥖䕃䅟䵄义⁠⁼楄慳汢⁥慣敭慲搠牵湩⁧瑓楲瑣䴠摯⁥潦畣⁳ർ簊怠䅃䕍䅒⁠⁼灏湥搠晥畡瑬挠浡牥⁡灡⁰牦浯栠浯⁥桳牯捴瑵簠਍⁼䵠䑏䙉彙啁䥄彏䕓呔义升⁠⁼摁番瑳瘠汯浵⁥楤敲瑣祬映潲⁭畱捩⁫敳瑴湩獧簠਍⁼坠䥒䕔卟呅䥔䝎恓簠䴠湡条⁥牢杩瑨敮獳挠湯牴汯映潲⁭敳瑴湩獧簠਍⁼偠䍁䅋䕇啟䅓䕇卟䅔協⁠⁼慃捬汵瑡⁥湯搭癥捩⁥捓敲湥传⁮楔敭洠瑥楲獣簠਍⁼剠䅅彄佃呎䍁協⁠‫䍠䱁彌䡐乏恅簠䐠物捥⁴楤污湩⁧潦⁲敤楳湧瑡摥倠浯摯牯⁯浥牥敧据⁹潣瑮捡⁴ർ簊怠䥖剂呁恅簠䠠灡楴⁣敦摥慢正映牯琠浩牥⁳湡⁤敳獳潩⁮牴湡楳楴湯⁳ർ簊怠䕒䕃噉彅佂呏䍟䵏䱐呅䑅⁠⁼畁潴慭楴⁣敳癲捩⁥湩瑩慩楬慺楴湯愠瑦牥搠癥捩⁥敲潢瑯簠਍⁼偠协彔低䥔䥆䅃䥔乏恓簠传杮楯杮戠捡杫潲湵⁤楴敭⁲潮楴楦慣楴湯⁳ർഊⴊⴭ਍਍⌣倠楲慶祣倠汯捩⁹…慄慴䜠慵慲瑮敥਍਍䥍卓䴠湩浩污愠桤牥獥琠⁯⁡瑳楲瑣稠牥ⵯ整敬敭牴⁹牰湩楣汰㩥਍‭⨪潎䤠瑮牥敮⁴敒畱物摥⨺‪桔⁥灡汰捩瑡潩⁮敲畱物獥渠⁯敮睴牯⁫数浲獩楳湯⁳潦⁲瑩⁳潣敲映慥畴敲⹳਍‭⨪潎䄠慮祬楴獣漠⁲牔捡敫獲⨺‪敚潲琠楨摲瀭牡祴匠䭄ⱳ琠汥浥瑥祲‬摡敶瑲獩湩⁧敮睴牯獫‬牯甠慳敧挠汯敬瑣潩⹮਍‭⨪〱┰䰠捯污匠潴慲敧⨺‪潃普杩牵瑡潩Ɱ愠灰氠浩瑩ⱳ愠摮甠慳敧洠瑥楲獣渠癥牥氠慥敶礠畯⁲敤楶散愠摮爠獥摩⁥潳敬祬椠⁮牰癩瑡⁥灡汰捩瑡潩⁮慳摮潢⁸瑳牯条⹥਍਍ⴭഭഊ⌊‣敔档匠慴正☠䄠捲楨整瑣牵൥ഊⴊ⨠䰪湡畧条㩥⨪䬠瑯楬൮ⴊ⨠䴪湩浩浵匠䭄⨺‪偁⁉㘲⠠湁牤楯⁤⸸‰牏潥ഩⴊ⨠吪牡敧⁴䑓㩋⨪䄠䥐㌠‴䄨摮潲摩ㄠ⤴਍‭⨪䥕⨺‪楖睥䈠湩楤杮‬畃瑳浯䰠祡畯獴‬潃獮牴楡瑮慌潹瑵‬敒祣汣牥楖睥‬潂瑴浯桓敥䑴慩潬൧ⴊ⨠䘪湯㩴⨪倠畬⁳慊慫瑲⁡慓獮਍‭⨪瑓牯条㩥⨪䰠捯污攠据祲瑰摥匠慨敲偤敲敦敲据獥਍‭⨪潃灭湯湥獴⨺‪潆敲牧畯摮匠牥楶散ⱳ䄠捣獥楳楢楬祴匠牥楶散‬潎楴楦慣楴湯楌瑳湥牥敓癲捩ⱥ䐠癥捩䅥浤湩敒散癩牥਍਍ⴭഭഊ⌊‣潃瑮楲畢楴杮਍਍潃瑮楲畢楴湯ⱳ戠杵爠灥牯獴‬湡⁤畳杧獥楴湯⁳牡⁥敷捬浯Ⅵ਍⸱䘠牯⁫桴⁥牐橯捥⹴਍⸲䌠敲瑡⁥潹牵䘠慥畴敲䈠慲据⁨怨楧⁴档捥潫瑵ⴠ⁢敦瑡牵⽥流穡湩䙧慥畴敲⥠മ㌊‮潃浭瑩礠畯⁲桃湡敧⁳怨楧⁴潣浭瑩ⴠ⁭䄧摤猠浯⁥流穡湩䙧慥畴敲性⸩਍⸴倠獵⁨潴琠敨䈠慲据⁨怨楧⁴異桳漠楲楧⁮敦瑡牵⽥流穡湩䙧慥畴敲⥠മ㔊‮灏湥愠倠汵⁬敒畱獥⹴਍਍ⴭഭഊ⌊‣楌散獮൥ഊ䐊獩牴扩瑵摥甠摮牥琠敨䴠呉䰠捩湥敳‮敓⁥恛䥌䕃华恅⡝䥌䕃华⥅映牯洠牯⁥敤慴汩⹳਍਍恠ൠ䴊呉䰠捩湥敳਍਍潃祰楲桧⁴挨 〲㘲猠歡ㄲ桳㉩ള怊恠਍਍ⴭഭഊ⨊䥍卓䴠湩浩污钀戠捥畡敳礠畯⁲桰湯⁥桳畯摬眠牯⁫潦⁲潹Ⱶ渠瑯愠慧湩瑳礠畯⨮਍
+# MISS Minimal
+
+**A distraction-free Android launcher. Text only. No icons. Pure focus.**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-white.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Android%208.0%2B-black.svg)](https://developer.android.com)
+[![Version](https://img.shields.io/badge/version-2.0-white)](https://github.com/sak21shi23/MissMInimal/releases)
+
+---
+
+## What is MISS Minimal?
+
+MISS Minimal is a minimalist Android home screen launcher that strips your phone down to its bare essentials. No app icons. No colorful UI. No distractions. Just text — clean, black and white.
+
+The idea is simple: most of the time you unlock your phone, you don't actually need it. The moment you see a colorful grid of icons, your brain starts wandering. MISS Minimal removes that trigger entirely. Five apps max on the home screen, listed as plain text. Everything else stays in the drawer — out of sight, out of mind.
+
+---
+
+## What's New in v2.0
+
+### Redesigned UI / UX
+- Upgraded typography to **Plus Jakarta Sans** for a cleaner, modern editorial aesthetic
+- Bottom navigation bar redesigned with a subtle pill-shaped card container
+- Focus Mode tab indicator with smooth animated underline
+- Redesigned EXIT button with badge styling
+- Enhanced backgrounds for drawer items and interactive controls
+- High-contrast clock display (85sp) and massive fullscreen overlay (140sp)
+- Refined padding and vertical alignment across all screen sizes
+
+### New Bottom Bar — 3 Toggles
+The home screen bottom bar features three immediate actions:
+- **FOCUS** — Opens Focus Mode (Stopwatch, Timer, Strict Mode, Pomodoro)
+- **SOT** — Opens Screen On Time tracker (today's application usage breakdown)
+- **TIME** — Opens fullscreen immersive clock overlay (tap anywhere to dismiss)
+
+### SOT — Screen On Time
+Dedicated screen tracking active device and application usage today:
+- Real-time usage aggregation via Android's `UsageStatsManager`
+- Direct summary on the home screen in hours and minutes
+- Per-app breakdown sorted by screen time duration
+
+### Focus Mode — 4 Powerful Tools
+Four distinct focus utilities to help reclaim attention:
+
+1. **Stopwatch**
+   - Clean Start / Pause / Resume / Stop workflow
+   - Flag feature to record lap timestamps during active sessions
+   - Scrollable lap history
+
+2. **Timer**
+   - Intuitive HH : MM : SS pickers
+   - Persistent countdown with vibration on completion
+
+3. **Strict Mode**
+   - 25-minute distraction-free lockdown session
+   - Automatically activates Do Not Disturb (DND)
+   - Temporary camera lock via Device Admin API
+   - Notification and swipe interference blocking
+   - Uninterrupted fullscreen countdown
+
+4. **Pomodoro Mode**
+   - Custom session durations: 25 / 50 / 75 / 100 minutes
+   - Up to 3 configurable allowed apps during work phase
+   - Emergency contact quick dial with direct call integration
+   - Dialing restrictions ensure only configured emergency contacts can be called
+   - Distinct work and rest phase detection with gentle haptic alerts
+
+### Quick Settings Panel
+A lightweight 9-toggle control center accessible via swipe:
+- **WiFi** — Quick toggle panel & direct settings access
+- **Data** — Internet connectivity shortcut
+- **Bluetooth** — System Bluetooth controls
+- **Flashlight** — Direct camera torch toggle
+- **DND** — Instant Do Not Disturb mode
+- **Rotate** — Auto-rotation toggle
+- **Hotspot** — Tethering controls
+- **Location** — Location services shortcut
+- **Airplane** — Network panel toggle
+- **Sound & Display** — Volume mode (Normal / Vibrate / Silent), volume slider, auto-brightness toggle, and brightness slider
+
+### Launcher Settings
+- **Typography:** Global font size adjustment (8–20sp) with real-time UI scaling
+- **System Controls:** Quick management of DND, flashlight, volume, and brightness
+- **Safety & Transparency:** Embedded open-source terms, privacy commitment, and permission explanations
+
+---
+
+## All Features
+
+### Home Screen
+- High-contrast time and date presentation
+- Dynamic daily Screen On Time counter
+- 5 primary slots: Phone & Camera fixed, 3 user-customizable
+- Long-press any slot to assign or clear apps
+- Gesture navigation:
+  - **Swipe Up:** Open text App Drawer
+  - **Swipe Down:** Open Quick Settings
+  - **EXIT:** Open system launcher selector
+
+### App Drawer
+- Fast, alphabetical plain-text list of installed applications
+- Instant incremental search
+- Long-press contextual options: Add to Home, Set Time Limit, Rename, App Info, Uninstall
+
+### Application Time Limits
+- Set per-app daily or session limits (1m, 5m, 10m, 15m, or custom)
+- Gracefully redirects user back to launcher once limit expires
+
+---
+
+## Screenshots
+
+<table align="center">
+  <tr>
+    <th>Home Screen</th>
+    <th>App Drawer</th>
+    <th>Quick Settings</th>
+    <th>Timer</th>
+  </tr>
+  <tr>
+    <td><img src="https://res.cloudinary.com/dpuitxsuh/image/upload/v1776881372/Screenshot_20260422_233549_ju08on.jpg" width="180"/></td>
+    <td><img src="https://res.cloudinary.com/dpuitxsuh/image/upload/v1776881375/Screenshot_20260422_233262_rbcxze.jpg" width="180"/></td>
+    <td><img src="https://res.cloudinary.com/dpuitxsuh/image/upload/v1776881373/Screenshot_20260422_233621_gnewve.jpg" width="180"/></td>
+    <td><img src="https://res.cloudinary.com/dpuitxsuh/image/upload/v1776881372/Screenshot_20260422_233612_9x0clt.jpg" width="180"/></td>
+  </tr>
+  <tr>
+    <th>Strict Mode</th>
+    <th>Pomodoro Mode</th>
+    <th>Stopwatch</th>
+    <th>Time</th>
+  </tr>
+  <tr>
+    <td><img src="https://res.cloudinary.com/dpuitxsuh/image/upload/v1757618285/STRICT_MODE_aushsh.jpg" width="180"/></td>
+    <td><img src="https://res.cloudinary.com/dpuitxsuh/image/upload/v1776881374/Screenshot_20260422_233614_mkwrex.jpg" width="180"/></td>
+    <td><img src="https://res.cloudinary.com/dpuitxsuh/image/upload/v1776881372/Screenshot_20260422_233601_anan4a.jpg" width="180"/></td>
+    <td><img src="https://res.cloudinary.com/dpuitxsuh/image/upload/v1776881372/Screenshot_20260422_233062_wiqt4e.jpg" width="180"/></td>
+  </tr>
+</table>
+
+---
+
+## Getting Started
+
+### Option 1 — Install Pre-built APK
+
+1. Head over to [**Releases**](https://github.com/sak21shi23/MissMInimal/releases).
+2. Download the latest `MISS-Minimal.apk`.
+3. Open the APK on your device, enable installation from unknown sources if prompted, and install.
+4. Press your Home button, choose **MISS Minimal**, and select **Always**.
+
+> **Note:** If Google Play Protect warns against installing standalone sideloaded APKs:
+> 1. Open Google Play Store → Profile Icon → **Play Protect**.
+> 2. Open Settings (top right gear).
+> 3. Temporarily pause **Scan apps with Play Protect** during manual installation.
+
+---
+
+### Option 2 — Build from Source
+
+**Prerequisites:**
+- Android Studio Iguana / Ladybug or newer
+- Android SDK (API Level 34)
+- JDK 17+
+
+```bash
+# Clone the repository
+git clone https://github.com/sak21shi23/MissMInimal.git
+
+# Enter the project directory
+cd MissMInimal
+```
+
+Open the project in Android Studio, allow Gradle Sync to finish, connect an Android device (Android 8.0+ / API 26+), and click **Run**.
+
+---
+
+## Permissions Overview
+
+| Permission | Purpose |
+|---|---|
+| `QUERY_ALL_PACKAGES` | Enumerate installed applications for the text drawer |
+| `SYSTEM_ALERT_WINDOW` | Keep focus and block interruptions during strict sessions |
+| `ACCESS_NOTIFICATION_POLICY` | Enable Do Not Disturb during focus sessions |
+| `BIND_ACCESSIBILITY_SERVICE` | Intercept distraction gestures while launcher is active |
+| `BIND_DEVICE_ADMIN` | Disable camera during Strict Mode focus |
+| `CAMERA` | Open default camera app from home shortcut & flashlight toggle |
+| `MODIFY_AUDIO_SETTINGS` | Adjust volume directly from quick settings |
+| `WRITE_SETTINGS` | Manage brightness control from settings |
+| `PACKAGE_USAGE_STATS` | Calculate on-device Screen On Time metrics |
+| `READ_CONTACTS` & `CALL_PHONE` | Direct dialing for designated Pomodoro emergency contacts |
+| `VIBRATE` | Haptic feedback for timers and session transitions |
+| `RECEIVE_BOOT_COMPLETED` | Automatic service initialization after device reboot |
+| `POST_NOTIFICATIONS` | Ongoing background timer notifications |
+
+---
+
+## Privacy Policy & Data Guarantee
+
+MISS Minimal adheres to a strict zero-telemetry principle:
+- **No Internet Required:** The application requires no network permissions for its core features.
+- **No Analytics or Trackers:** Zero third-party SDKs, telemetry, advertising networks, or usage collection.
+- **100% Local Storage:** Configuration, app limits, and usage metrics never leave your device and reside solely in private application sandbox storage.
+
+---
+
+## Tech Stack & Architecture
+
+- **Language:** Kotlin
+- **Minimum SDK:** API 26 (Android 8.0 Oreo)
+- **Target SDK:** API 34 (Android 14)
+- **UI:** ViewBinding, Custom Layouts, ConstraintLayout, RecyclerView, BottomSheetDialog
+- **Font:** Plus Jakarta Sans
+- **Storage:** Local Encrypted SharedPreferences
+- **Components:** Foreground Services, Accessibility Service, NotificationListenerService, DeviceAdminReceiver
+
+---
+
+## Contributing
+
+Contributions, bug reports, and suggestions are welcome!
+1. Fork the Project.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+---
+
+## License
+
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more details.
+
+```text
+MIT License
+
+Copyright (c) 2026 sak21shi23
+```
+
+---
+
+*MISS Minimal — because your phone should work for you, not against you.*
